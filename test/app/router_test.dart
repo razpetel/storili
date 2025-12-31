@@ -12,10 +12,8 @@ void main() {
 
     test('initial location is home', () {
       final router = AppRouter.router;
-      // GoRouter configuration is set via initialLocation,
-      // which we can verify through the router's configuration
-      final firstRoute = router.configuration.routes.first as GoRoute;
-      expect(firstRoute.path, equals('/'));
+      // Verify the initial location via the route information provider
+      expect(router.routeInformationProvider.value.uri.path, equals('/'));
     });
   });
 }
