@@ -1,0 +1,49 @@
+{
+  "id": "three-little-pigs",
+  "title": "The Three Little Pigs",
+  "description": "Help three clever pigs build houses and outsmart a huffing, puffing wolf!",
+  "duration_minutes": 10,
+  "age_range": {
+    "min": 3,
+    "max": 5
+  },
+  "scenes": [
+    "cottage",
+    "straw_house",
+    "stick_house",
+    "brick_house",
+    "celebration"
+  ],
+  "characters": {
+    "capy": {
+      "voice_id": "capy_default",
+      "role": "narrator"
+    },
+    "first_pig": {
+      "voice_id": "pig_playful",
+      "role": "character"
+    },
+    "second_pig": {
+      "voice_id": "pig_gentle",
+      "role": "character"
+    },
+    "third_pig": {
+      "voice_id": "pig_wise",
+      "role": "character"
+    },
+    "wolf": {
+      "voice_id": "wolf_silly",
+      "role": "character"
+    },
+    "mama_pig": {
+      "voice_id": "pig_warm",
+      "role": "character"
+    }
+  },
+  "tools": [
+    "change_scene",
+    "suggest_actions",
+    "generate_image",
+    "session_end"
+  ]
+}

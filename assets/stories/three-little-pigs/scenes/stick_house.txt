@@ -1,0 +1,23 @@
+# Scene: Stick House
+
+Base art prompt for image generation. Agent enriches with story context.
+
+## Setting
+Forest edge where Second Pig builds a prettier stick house.
+
+## Base Prompt
+A charming house made of brown sticks and branches at the edge of a friendly forest. The house is decorated with colorful autumn leaves, red berries, and little flower garlands. Second Pig shows off the decorations proudly while First Pig catches his breath nearby. Dappled golden sunlight filters through gentle trees. Soft shadows. Classic storybook watercolor illustration style, soft textures, child-friendly, creative atmosphere.
+
+## Key Elements
+- Stick/branch house with decorations
+- Leaf and berry decorations
+- Forest edge (friendly trees)
+- Two pigs present
+- Dappled sunlight
+- Creative, crafty feel
+
+## Variant: Wolf Arrival
+Add: The gray wolf approaching, looking even more tired than before, rubbing his throat. Comedic expression.
+
+## Variant: After Blow
+Sticks scattered artistically, decorations floating in the air. Both pigs running together toward the distance where a brick house is visible on a hill.

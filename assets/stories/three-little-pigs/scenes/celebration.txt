@@ -1,0 +1,24 @@
+# Scene: Celebration
+
+Base art prompt for image generation. Agent enriches with story context.
+
+## Setting
+Inside the cozy brick house for the victory celebration.
+
+## Base Prompt
+The warm interior of the brick house with a crackling fireplace. Three happy pigs dance in a circle, hooves linked. Mama Pig arrives through the door carrying a steaming apple pie. Colorful confetti and streamers decorate the room. A cozy rug, comfortable furniture, and warm lighting create a safe, happy atmosphere. Everyone is smiling and celebrating. Classic storybook watercolor illustration style, soft textures, child-friendly, joyful atmosphere.
+
+## Key Elements
+- Cozy interior with fireplace
+- Dancing pigs
+- Mama Pig with pie
+- Confetti and streamers
+- Warm, celebratory feeling
+- Safe, happy home
+
+## Personalization Notes
+Agent should enrich based on:
+- Child's name if known
+- Specific choices made during story
+- Which pig the child helped most
+- Any funny moments to reference

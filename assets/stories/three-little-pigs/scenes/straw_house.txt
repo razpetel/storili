@@ -1,0 +1,23 @@
+# Scene: Straw House
+
+Base art prompt for image generation. Agent enriches with story context.
+
+## Setting
+Sunny meadow where First Pig builds his quick straw house.
+
+## Base Prompt
+A wobbly little house made of golden straw bundles in a sunny meadow dotted with white daisies. First Pig, a cheerful pink pig, stands proudly beside the tilting house. The house looks cute but clearly flimsy, with straw poking out at odd angles. Bright blue sky with fluffy white clouds. Butterflies flutter nearby. Classic storybook watercolor illustration style, soft textures, child-friendly, playful atmosphere.
+
+## Key Elements
+- Straw bundle house (wobbly)
+- Sunny meadow
+- White daisies
+- First Pig looking proud
+- Bright cheerful lighting
+- Some straw scattered around
+
+## Variant: Wolf Arrival
+Add: A silly-looking gray wolf peeking from behind a bush, taking a deep breath. Expression should be comedic, not scary.
+
+## Variant: After Blow
+The straw is scattered everywhere like confetti! First Pig running away with a surprised expression. Wolf looking pleased but tired.

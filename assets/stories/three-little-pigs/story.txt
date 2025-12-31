@@ -1,0 +1,197 @@
+# The Three Little Pigs
+# Adapted for ages 3-5 | Audio-first interactive experience
+
+## OVERVIEW
+PREMISE: Three little pigs leave home to build their own houses. A silly wolf tries to blow them down, but learns that brick houses are too strong!
+PLAYER ROLE: The child is a friend helping the pigs on their adventure
+COMPANION: Capy guides them through, making it fun and safe
+TONE: Silly, cozy, triumphant
+
+## CHARACTERS
+
+### First Pig (Straw)
+- Voice: High-pitched, playful, giggly
+- Personality: Carefree, loves to play, a bit lazy but lovable
+- Catchphrase: "Wheee! Let's play!"
+- Role: Builds straw house (too fast), runs to brother
+
+### Second Pig (Sticks)
+- Voice: Medium pitch, gentle, friendly
+- Personality: Creative, likes crafts, middle-ground effort
+- Catchphrase: "Ooh, look what I made!"
+- Role: Builds stick house, runs to brother with First Pig
+
+### Third Pig (Bricks)
+- Voice: Lower, calm, wise but warm
+- Personality: Patient, hardworking, protective of siblings
+- Catchphrase: "Slow and steady, friends!"
+- Role: Builds strong brick house, saves everyone
+
+### Wolf
+- Voice: Deep but SILLY - not scary at all
+- Personality: Goofy, dramatic, gets tired easily, gives up
+- Catchphrase: "I'll huff... and I'll puff... *wheeze*"
+- Key trait: More funny than frightening, runs away embarrassed
+- IMPORTANT: Always comedic, never threatening
+
+### Mama Pig
+- Voice: Warm, loving, encouraging
+- Personality: Proud of her babies, gives them hugs
+- Role: Sends pigs off at start, appears at end to celebrate
+
+---
+
+## SCENE 1: COTTAGE
+LOCATION: Cozy family cottage with Mama Pig
+ATMOSPHERE: Warm, safe, morning light, exciting new adventure
+
+ART_PROMPT: A cozy thatched cottage with a red door, surrounded by a flower garden. Mama Pig waves from the doorway. Three little pigs with small backpacks stand on the path. Warm morning sunlight. Watercolor storybook style.
+
+PLOT BEATS:
+1. Capy introduces us to the three little pigs at home
+2. Mama Pig tells them it's time to build their own houses
+3. She gives them each a hug and some advice
+4. The pigs wave goodbye and head down the road
+
+CAPY MOMENTS:
+- "Look! Three little piggies! Can you wave hello?"
+- "Mama Pig loves them so much! Can you give them a hug too?"
+- "Where do you think they should build their houses?"
+
+KEY DIALOGUE:
+- Mama Pig: "My little ones, you're all grown up! Time to build your very own houses!"
+- First Pig: "Wheee! I'm gonna build the FASTEST house!"
+- Second Pig: "I'll make something pretty!"
+- Third Pig: "I'll build something strong and safe."
+- Mama Pig: "Remember - take your time and do your best!"
+
+→ NEXT SCENE TRIGGER: Pigs say goodbye and walk down the road
+
+---
+
+## SCENE 2: STRAW HOUSE
+LOCATION: Sunny meadow where First Pig builds
+ATMOSPHERE: Playful, sunny, quick and breezy
+
+ART_PROMPT: A wobbly little straw house in a sunny meadow with daisies. First Pig stands proudly beside it. The house looks cute but flimsy. Blue sky with fluffy clouds. Watercolor storybook style.
+
+PLOT BEATS:
+1. First Pig finds straw and builds super fast
+2. House is wobbly but First Pig is proud
+3. Wolf appears - huffs and puffs (silly, not scary!)
+4. Straw flies everywhere! First Pig runs to Second Pig
+
+CAPY MOMENTS:
+- "Look at First Pig go! So fast! But hmm... does that house look strong?"
+- "Uh oh! Do you see someone coming? Can you hide with me?"
+- "Quick! Can you help First Pig run? Run run run!"
+
+KEY DIALOGUE:
+- First Pig: "Ta-da! All done! Now I can play!"
+- Wolf: "Ahem! Little pig, little pig, let me come in!"
+- First Pig: "Not by the hair on my chinny chin chin!"
+- Wolf: "Then I'll HUFF... and I'll PUFF... *dramatic inhale*"
+- Wolf: "*WHOOOOSH* ...oh that was easy!"
+- First Pig: "Ahhh! Run away!"
+
+WOLF BEHAVIOR: Make it silly! Wolf should seem winded, overdramatic, surprised it worked. Child should laugh, not fear.
+
+→ NEXT SCENE TRIGGER: First Pig runs to Second Pig's house
+
+---
+
+## SCENE 3: STICK HOUSE
+LOCATION: Forest edge where Second Pig builds
+ATMOSPHERE: Creative, crafty, still hopeful
+
+ART_PROMPT: A charming stick house decorated with leaves and berries at the edge of a friendly forest. Second Pig shows it off proudly while First Pig catches breath. Dappled sunlight. Watercolor storybook style.
+
+PLOT BEATS:
+1. First Pig arrives, tells Second Pig about wolf
+2. Second Pig shows off stick house (it's prettier but still wobbly)
+3. Wolf arrives again - more huffing and puffing
+4. Sticks scatter! Both pigs run to Third Pig
+
+CAPY MOMENTS:
+- "Second Pig made it so pretty! But is it strong enough?"
+- "Here comes that silly wolf again! What should the piggies do?"
+- "Run, piggies, run! Can you run with them?"
+
+KEY DIALOGUE:
+- First Pig: "The wolf! He blew my house down!"
+- Second Pig: "Don't worry, my house is better! See the decorations?"
+- Wolf: "Little pigs, little pigs, let me come in!"
+- Both Pigs: "Not by the hair on our chinny chin chins!"
+- Wolf: "Then I'll HUFF... *big breath* ...and I'll PUFF... *dramatic pause*"
+- Wolf: "*WHOOOOSH* Ow, I think I strained something..."
+- Pigs: "To our brother's house!"
+
+WOLF BEHAVIOR: Even more tired now. Maybe holding his back. Getting grumpy but in a funny way.
+
+→ NEXT SCENE TRIGGER: Both pigs run to Third Pig's brick house
+
+---
+
+## SCENE 4: BRICK HOUSE
+LOCATION: Sturdy brick house on a hill
+ATMOSPHERE: Safe, strong, triumphant
+
+ART_PROMPT: A strong red brick house with a chimney on a gentle hill. Three pigs peek happily from windows. Wolf outside looking exhausted and defeated. Warm golden sunlight. Watercolor storybook style.
+
+PLOT BEATS:
+1. Two pigs arrive at Third Pig's strong brick house
+2. Third Pig welcomes them inside - it's cozy!
+3. Wolf tries huffing and puffing... but nothing happens!
+4. Wolf gets tired, gives up, runs away embarrassed
+
+CAPY MOMENTS:
+- "Wow! Look at Third Pig's house! Can you knock on the door?"
+- "The wolf is trying SO hard! Do you think he can blow this one down?"
+- "He can't do it! Can you cheer for the piggies?"
+
+KEY DIALOGUE:
+- Third Pig: "Come in, come in! You're safe here!"
+- First Pig: "Your house is so STRONG!"
+- Second Pig: "And so cozy!"
+- Wolf: "Little pigs! I'll huff! And I'll puff! And I'll... I'll..."
+- Wolf: "*huff huff wheeze* ...give me a minute..."
+- Wolf: "*WHOOOOSH* ...nothing? *WHOOOOOOSH* ...still nothing?!"
+- Wolf: "This is ridiculous! My throat hurts! I'm going home!"
+- All Pigs: "Yay! We did it!"
+
+WOLF BEHAVIOR: Completely exhausted. Face turning red. Maybe sits down defeated. Shuffles off muttering. NO scary moments - pure comedy.
+
+→ NEXT SCENE TRIGGER: Wolf leaves, pigs celebrate
+
+---
+
+## SCENE 5: CELEBRATION
+LOCATION: Inside the cozy brick house
+ATMOSPHERE: Joyful, warm, accomplished
+
+ART_PROMPT: Three happy pigs dancing inside a cozy brick house with a warm fireplace. Mama Pig arrives with a pie. Confetti and streamers decorate the room. Everyone smiling. Watercolor storybook style.
+
+PLOT BEATS:
+1. Pigs celebrate being safe together
+2. Mama Pig arrives to check on them
+3. Everyone celebrates - the child helped save the day!
+4. Warm goodbye and story ends
+
+CAPY MOMENTS:
+- "We did it! The piggies are safe! Can you do a happy dance?"
+- "Look who's here! It's Mama Pig!"
+- "You were such a good helper today! The piggies are so happy!"
+
+KEY DIALOGUE:
+- Third Pig: "See? Slow and steady wins!"
+- First Pig: "Next time I'll work harder!"
+- Second Pig: "Me too! But can I still decorate?"
+- Mama Pig: "My brave little ones! And thank you for helping them!"
+- All Pigs: "Thank you, friend! Come back and play again!"
+
+PERSONALIZATION:
+- Use child's name if captured earlier
+- Reference specific choices they made
+- Celebrate their unique contributions
+
+→ STORY END: Call session_end with personalized summary
