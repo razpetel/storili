@@ -33,16 +33,30 @@ Children experience classic Grimm tales guided by Capy, a friendly capybara comp
 
 - Child can speak whenever, not just at prompts
 - Natural conversation with the story
-- Barge-ins welcome - Capy responds naturally and resumes
+- Barge-ins welcome - Capy stops immediately and responds
+- Mic stays hot during Capy's speech (ElevenLabs handles echo cancellation)
 - ElevenLabs agent handles free-form speech
+
+### Voice Input Handling
+
+| Situation | Behavior |
+|-----------|----------|
+| ASR failure | Gentle re-prompt: "Hmm, I didn't quite catch that!" (up to 2-3 times, then suggest cards) |
+| Background noise | After repeated issues, show subtle parent notification suggesting quieter environment |
+| Long child speech | After 60s, prompt: "I'm listening! What happens next?" |
+| Misheard profanity | Ignore - respond to intent, not misheard word |
+| Off-topic adult themes | Gentle redirect: "That's a big question! But right now, the wolf is waiting..." |
+| Concerning speech | No special handling - don't make app feel like surveillance |
 
 ### 4 Action Cards (Tap Fallback)
 
-- Appear at decision moments as alternative to speaking
-- 3 AI-suggested actions relevant to current moment
-- 4th card: "Something else..." opens text input for parent
+- **Visibility**: Hidden during Capy's speech, slide up together when Capy finishes
+- **Format**: Text + emoji (e.g., "🌳 Hide behind tree")
+- **Content**: 3 AI-suggested actions + "Something else..."
+- **4th card**: Opens single-line text input for parent (no gate required)
+- **Tap handling**: Card text injected as if child spoke it
+- **Haptics**: Light tap feedback on selection
 - Cards are helpers, not constraints - voice always works
-- Parent can silently guide via the 4th card
 
 ## Capy - The Companion
 
@@ -53,12 +67,14 @@ Children experience classic Grimm tales guided by Capy, a friendly capybara comp
 | Voice | Warm, gentle, preschool teacher energy |
 | Behavior | Celebrates choices, reassures if scared, invites participation |
 | Catchphrases | "Can you...?", "Look!", "Ooh!", "Don't worry!" |
+| Idle behavior | After 30s silence, gently prompts: "What would you like to do?" |
+| Name capture | May naturally ask "What's your name, little one?" during story |
 
 ## Audio Architecture
 
 ### ElevenLabs Integration
 
-Single agent per story with workflow subagent nodes per scene (3-5 scenes max).
+Single agent per story with workflow subagent nodes per scene (5 scenes max).
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -74,11 +90,29 @@ Single agent per story with workflow subagent nodes per scene (3-5 scenes max).
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+### Agent Custom Tools
+
+The ElevenLabs agent uses client tools to communicate structured data to the app:
+
+| Tool | Purpose |
+|------|---------|
+| `change_scene` | Signal scene transition, triggers image generation |
+| `suggest_actions` | Provide 3 action card suggestions |
+| `generate_image` | Request image with dynamic prompt based on child's choices |
+| `session_end` | Signal story completion with summary |
+
 ### Voice Configuration
 
 - **Capy**: Warm narrator voice (default)
 - **Characters**: Distinct voices per character (witch, wolf, children, etc.)
-- Agent switches voices dynamically based on who's speaking
+- **Switching**: Inline - agent handles voice changes via prompt instructions
+
+### Connection Management
+
+- **Pre-connect**: Open generic WebSocket connection on home screen before story selection
+- **Story binding**: Specify story agent when child taps a story card
+- **Connection drop**: Invisible reconnect in background, resume from last stable point
+- **Latency indicator**: Visual only (pulsing mic) - no audio filler
 
 ### Context Management
 
@@ -88,6 +122,7 @@ Following modern best practices (Anthropic, Google ADK, LangChain):
 - **RAG for scenarios** - retrieve relevant examples, not all
 - **Sliding window history** - compress/summarize older turns
 - **Priority system**: scene > scenarios > Capy personality > characters > general knowledge
+- **Context errors**: Play along creatively with out-of-context requests
 
 ## Story Structure
 
@@ -102,6 +137,8 @@ Following the Three Little Pigs pattern:
 
 ### Story Content Files
 
+Same structure as piglets demo:
+
 ```
 stories/
 ├── _shared/
@@ -112,7 +149,7 @@ stories/
 │   ├── manifest.json            # Metadata + voice mappings
 │   ├── sys_prompt.txt           # Orchestrator for this story
 │   ├── story.txt                # General knowledge + scene breakdown
-│   ├── scenarios.txt            # Example inputs → responses
+│   ├── scenarios.txt            # 20-30 example inputs → responses
 │   ├── characters/
 │   │   ├── witch.txt
 │   │   ├── gretel.txt
@@ -141,7 +178,7 @@ TONE: [Cozy, silly, adventurous, etc.]
 ## SCENE 1: [SCENE NAME]
 LOCATION: [Where are we?]
 ATMOSPHERE: [How does it feel?]
-ART_PROMPT: [What should the image show?]
+ART_PROMPT: [Base art prompt - agent enriches with scene details]
 
 PLOT BEATS:
 1. [First thing that happens]
@@ -161,25 +198,40 @@ KEY DIALOGUE:
 
 ## Image Generation
 
-### On-Demand at Scene Transitions
+### Configuration
 
-- Generate when scene transition triggers (not pre-generated)
-- 2-4 second latency masked by Capy's narration
-- Classic storybook watercolor illustration style
-- Consistent style across all stories via shared base prompt
+| Setting | Value |
+|---------|-------|
+| Service | OpenAI DALL-E 3 (recommended for consistent storybook style) |
+| Aspect ratio | Square (1:1) |
+| Style | Classic storybook watercolor illustration |
+| Consistency | Stylistically similar acceptable (not pixel-perfect) |
+| Caching | None - always regenerate fresh images |
+| Animation | Ken Burns effect (subtle pan/zoom) on displayed images |
+
+### Prompt Composition
+
+- **Base prompt**: Style + story context from `art_style.txt` and scene files
+- **Enrichment**: Agent adds scene-specific details based on child's actual choices
+- **Result**: Personalized images reflecting the child's unique playthrough
 
 ### Flow
 
 ```
-Scene transition triggered
+Agent calls generate_image tool
         │
         ├──► Capy begins narrating new scene (immediate)
         │
-        └──► Image generation starts in parallel (2-4 sec)
+        └──► Image generation starts in parallel (5-10 sec)
                     │
                     ▼
-              Image ready → crossfade in
+              Image ready → crossfade in with Ken Burns
 ```
+
+### Fallback
+
+- On failure: Retry silently while keeping previous image visible
+- After 2-3 failures: Show pre-made placeholder illustration
 
 ## Session Persistence
 
@@ -191,7 +243,7 @@ Not deterministic state flags. AI-generated narrative capturing the child's uniq
 
 | Element | Example |
 |---------|---------|
-| Child's name | "Emma" (if shared) |
+| Child's name | "Emma" (if shared naturally) |
 | Play style | "brave helper", "silly", "cautious" |
 | Key choices | "whispered instead of shouting" |
 | How they chose | "made the witch laugh by pretending" |
@@ -199,7 +251,20 @@ Not deterministic state flags. AI-generated narrative capturing the child's uniq
 | Current moment | "about to push the witch" |
 | Personality notes | "loves making silly voices" |
 
+### Save Behavior
+
+| Trigger | Action |
+|---------|--------|
+| Story completion | Generate summary via `session_end` tool |
+| Exit (✕ button) | Confirmation dialog, then save summary |
+| Time cap reached | Capy says goodbye, save summary |
+| App backgrounded | Continue 5-10 seconds, then pause and save |
+| Connection lost | Invisible reconnect; if fails, auto-save |
+
 ### Resume Experience
+
+- **Story tap**: Auto-resume from where they left off (no prompt)
+- **Restart option**: Hidden in settings only
 
 ```
 App opens
@@ -224,14 +289,26 @@ for you - he keeps calling you 'the sneaky one.'"
 {
   "device_id": "uuid",
   "last_story": "hansel-and-gretel",
+  "daily_playtime_minutes": 15,
+  "playtime_date": "2025-12-31",
   "progress": {
     "hansel-and-gretel": {
+      "status": "in_progress",
       "summary": "Emma is playing as a brave helper. She chose to whisper a secret plan to Hansel instead of shouting, which was very clever...",
       "updated": "2025-12-31T10:30:00Z"
     }
   }
 }
 ```
+
+## Usage Limits
+
+| Limit | Value |
+|-------|-------|
+| Daily playtime cap | 30 minutes |
+| Cap reset | Daily at midnight (local time) |
+| Replays count? | Yes - all playtime counts toward limit |
+| Cap reached behavior | Capy: "Time for a break! We'll continue later" → save and exit |
 
 ## Technical Architecture
 
@@ -264,6 +341,7 @@ lib/
 ├── screens/
 │   ├── home_screen.dart
 │   ├── story_screen.dart
+│   ├── celebration_screen.dart
 │   └── settings_screen.dart
 │
 ├── widgets/
@@ -282,7 +360,7 @@ lib/
 User speaks
     │
     ▼
-AudioService (captures mic)
+AudioService (captures mic - always listening)
     │
     ▼
 ElevenLabsService (sends via WebSocket)
@@ -297,8 +375,8 @@ ElevenLabsService (receives events via WebSocket)
 StoryNotifier (handles events, updates state)
     ├──► AgentAudio → AudioService (plays audio)
     ├──► SuggestedActions → Update UI (show cards)
-    ├──► SceneChange → ImageService (generate art)
-    └──► SessionEnded → StorageService (persist)
+    ├──► SceneChange + GenerateImage → ImageService (parallel)
+    └──► SessionEnded → StorageService (persist) → CelebrationScreen
     │
     ▼
 StoryScreen (reacts to state changes)
@@ -314,12 +392,15 @@ class AgentAudio extends AgentEvent {
 }
 
 class SuggestedActions extends AgentEvent {
-  final List<String> actions;
+  final List<String> actions;  // 3 suggestions
 }
 
 class SceneChange extends AgentEvent {
   final String sceneName;
-  final String artPrompt;
+}
+
+class GenerateImage extends AgentEvent {
+  final String prompt;  // Agent-enriched prompt
 }
 
 class SessionEnded extends AgentEvent {
@@ -327,7 +408,7 @@ class SessionEnded extends AgentEvent {
 }
 ```
 
-### Packages (8 total)
+### Packages (9 total)
 
 | Need | Package |
 |------|---------|
@@ -339,25 +420,68 @@ class SessionEnded extends AgentEvent {
 | HTTP | `http` |
 | Storage | `shared_preferences` |
 | Images | `cached_network_image` |
+| Crash reporting | `firebase_crashlytics` |
+
+### Configuration
+
+| Setting | Value |
+|---------|-------|
+| API key storage | Compiled into app (hardcoded for MVP) |
+| Target devices | Recent phones/tablets (last 3-4 years) |
+| Orientation | Portrait only (locked) |
+| Audio routing | Auto-detect (OS handles device selection) |
 
 ## User Experience
+
+### App Launch
+
+1. **Splash screen**: Animated Capy while app initializes
+2. **Home screen**: Story cards with animated Capy in header
+
+### Home Screen
+
+```
+┌─────────────────────────────────────────┐
+│                                    ⚙️   │
+│                                         │
+│     ┌─────────────────────────────┐     │
+│     │   Animated Capy (waving)    │     │
+│     └─────────────────────────────┘     │
+│                                         │
+│  ┌─────────────┐  ┌─────────────┐       │
+│  │  Three      │  │  Hansel &   │       │
+│  │  Little     │  │  Gretel     │       │
+│  │  Pigs       │  │             │       │
+│  │ ✨ NEW      │  │ 🔄 CONTINUE │       │
+│  └─────────────┘  └─────────────┘       │
+│                                         │
+└─────────────────────────────────────────┘
+```
+
+**Story card states:**
+- Never started: Subtle sparkle effect
+- In progress: "Continue" badge
+- Completed: "Completed" badge
+
+**Connection**: Subtle spinner while pre-connecting to ElevenLabs
 
 ### Story Screen Layout
 
 ```
 ┌─────────────────────────────────────────┐
-│ ✕                              🔇  ⚙️   │
+│ ✕                                       │
 │                                         │
 │         ┌───────────────────┐           │
 │         │   Scene Image     │           │
-│         │   (AI generated)  │           │
+│         │   (Ken Burns)     │           │
+│         │   1:1 square      │           │
 │         └───────────────────┘           │
 │                                         │
 │              🎙️ Listening...            │
 │                                         │
 ├─────────────────────────────────────────┤
 │  ┌─────────┐ ┌─────────┐ ┌─────────┐   │
-│  │  Hide   │ │  Run    │ │  Call   │   │
+│  │🌳 Hide  │ │🏃 Run   │ │📢 Call  │   │
 │  │ behind  │ │  away   │ │  for    │   │
 │  │  tree   │ │         │ │  help   │   │
 │  └─────────┘ └─────────┘ └─────────┘   │
@@ -367,21 +491,98 @@ class SessionEnded extends AgentEvent {
 └─────────────────────────────────────────┘
 ```
 
-### States
+### Screen States
 
 | State | Visual | Audio |
 |-------|--------|-------|
-| Capy speaking | 🔊 indicator, cards dimmed | Voice playing |
+| Capy speaking | 🔊 indicator, cards hidden | Voice playing, mic listening |
 | Listening | 🎙️ pulsing, cards visible | Mic active |
-| Scene transition | Image crossfade | Capy narrates |
+| Processing | 🎙️ pulsing indicator | Waiting for agent |
+| Scene transition | Image crossfade with Ken Burns | Capy narrates |
+
+### Celebration Screen
+
+Shown on story completion. Reveal sequence:
+
+1. **Confetti animation** (immediate)
+2. **Capy's personalized recap** (voice, no text): "You were so brave when..."
+3. **Image gallery** (all generated images from playthrough)
+4. **Replay option**: "Play again?" button
+
+```
+┌─────────────────────────────────────────┐
+│          🎉 Confetti 🎉                 │
+│                                         │
+│     ┌─────────────────────────────┐     │
+│     │     Capy celebrating        │     │
+│     │    (speaking recap)         │     │
+│     └─────────────────────────────┘     │
+│                                         │
+│  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐       │
+│  │ 📷  │ │ 📷  │ │ 📷  │ │ 📷  │       │
+│  └─────┘ └─────┘ └─────┘ └─────┘       │
+│  (scrollable image gallery)             │
+│                                         │
+│        ┌──────────────────┐             │
+│        │   🔄 Play again   │             │
+│        └──────────────────┘             │
+│                                         │
+│        ┌──────────────────┐             │
+│        │   🏠 Home         │             │
+│        └──────────────────┘             │
+└─────────────────────────────────────────┘
+```
+
+**Image storage**: Keep in memory for celebration, discard after leaving screen.
+
+### Settings Screen
+
+Minimal for MVP:
+
+```
+┌─────────────────────────────────────────┐
+│ ← Settings                              │
+│                                         │
+│  ┌─────────────────────────────────┐    │
+│  │  Reset Story Progress           │    │
+│  │  Start all stories fresh        │    │
+│  └─────────────────────────────────┘    │
+│                                         │
+└─────────────────────────────────────────┘
+```
 
 ### Error Handling
 
 | Error | Experience |
 |-------|------------|
-| Mic denied | Capy: "I can't hear you! Ask a grown-up to tap here." |
-| Network lost | Capy: "Oops, I lost my magic! Let's try again." |
-| Speech unclear | Capy: "Hmm, I didn't quite hear that. Can you say it again?" |
+| Mic denied | Allow tap-only mode (degraded but functional) |
+| Network lost | Invisible reconnect; if fails, save and friendly exit |
+| Speech unclear | Gentle re-prompt (2-3x), then suggest tapping cards |
+| Image gen fails | Retry silently, show placeholder after 2-3 failures |
+| Exit button | Confirmation dialog: "Leave the story?" |
+
+### Offline Behavior
+
+- **Home screen**: Show story selection, pre-connect attempts in background
+- **Story start**: If offline, show: "Capy needs internet to talk! Please connect and try again."
+- **Mid-story drop**: Invisible reconnect attempt; if fails, save progress and graceful exit
+
+## Branding
+
+| Element | Specification |
+|---------|---------------|
+| App name | Storili |
+| Icon | Capy face |
+| Splash | Animated Capy |
+
+## Analytics
+
+Basic anonymous analytics:
+- Session length
+- Story completion rates
+- Crash reports (Firebase Crashlytics)
+
+No personal data collected.
 
 ## MVP Scope
 
@@ -390,9 +591,12 @@ class SessionEnded extends AgentEvent {
 - Three Little Pigs (content already exists)
 - Capy as companion
 - Voice + tap interaction
-- On-demand image generation
+- On-demand image generation with Ken Burns
 - Save/resume with rich summary
+- 30-minute daily time cap
+- Celebration screen with gallery
 - iOS + Android
+- Portrait only
 
 ### Out of Scope (Future)
 
@@ -401,61 +605,79 @@ class SessionEnded extends AgentEvent {
 - Multi-language
 - Companion customization
 - Voice-only mode
+- Child profiles (data model ready, no UI)
+- Parent dashboard
+- Captions/accessibility
 
 ### MVP Phases
 
 ```
-PHASE 1: Shell (2 days)
+PHASE 1: Shell
 ├── Flutter project setup
 ├── Folder structure
-├── Navigation: Home ↔ Story ↔ Settings
-├── Theme
+├── Navigation: Home ↔ Story ↔ Settings ↔ Celebration
+├── Theme + Branding
+├── Animated Capy splash
 └── Placeholder UI
 
-PHASE 2: Audio Pipeline (3 days)
+PHASE 2: Audio Pipeline
 ├── AudioService (play + record)
-├── Mic permission flow
+├── Mic permission flow (with tap-only fallback)
 ├── Test: record → playback locally
 └── Streaming chunks
 
-PHASE 3: ElevenLabs (3 days)
+PHASE 3: ElevenLabs
 ├── ElevenLabsService (WebSocket)
+├── Pre-connect on home screen
+├── Custom tools: change_scene, suggest_actions, generate_image, session_end
 ├── AgentEvent parsing
 ├── StoryNotifier orchestration
+├── Barge-in handling
 └── Test: speak → hear response
 
-PHASE 4: Full Loop (2 days)
+PHASE 4: Full Loop
 ├── Bundle Three Little Pigs content
 ├── Load story manifest
 ├── Complete playthrough
-└── Scene transitions
+├── Scene transitions
+└── Card tap → inject as text
 
-PHASE 5: Images (2 days)
-├── ImageService
-├── Scene change → trigger generation
-├── Crossfade animation
+PHASE 5: Images
+├── ImageService (DALL-E 3)
+├── generate_image tool → trigger generation
+├── Ken Burns animation
+├── Crossfade transitions
 └── Narration masks latency
 
-PHASE 6: Persistence (2 days)
+PHASE 6: Persistence
 ├── StorageService
-├── Save summary on exit
+├── Save summary on exit/completion
 ├── Resume with context
+├── Daily playtime tracking
+├── 30-minute cap with gentle Capy goodbye
 └── Personal welcome back
 
-PHASE 7: Polish & Ship (3 days)
+PHASE 7: Celebration
+├── CelebrationScreen
+├── Reveal sequence animation
+├── Capy voice recap
+├── Image gallery (in-memory)
+└── Replay option
+
+PHASE 8: Polish & Ship
 ├── Error states
 ├── Loading indicators
-├── Parent settings
+├── Haptic feedback
+├── Firebase Crashlytics
+├── Settings screen (reset progress)
 └── Playtest with kids
 ```
-
-**Total: ~17 days to shippable MVP**
 
 ## Testing
 
 ### Automated
 
-- Unit tests: Services (ElevenLabs event parsing, storage)
+- Unit tests: Services (ElevenLabs event parsing, storage, image service)
 - Widget tests: Action cards, scene image, audio indicator
 - Integration tests: Full story flow with mocked services
 
@@ -469,6 +691,23 @@ PHASE 7: Polish & Ship (3 days)
 | Interruption | Does barge-in feel natural? |
 | Resume | Does welcome back feel personal? |
 | Session length | Engaged for ~10 min? |
+| Time cap | Does gentle exit feel okay? |
+| Celebration | Does child enjoy the recap + gallery? |
+
+## Data Model: Future Profile Support
+
+Current storage is device-level, but data model supports future profiles:
+
+```json
+{
+  "device_id": "uuid",
+  "active_profile": null,
+  "profiles": [],
+  "progress": { }
+}
+```
+
+When profiles are added, `progress` moves under each profile.
 
 ## References
 
