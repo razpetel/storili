@@ -1,0 +1,32 @@
+# Storili Art Style
+
+Base style for all story illustrations. Agent enriches with scene-specific details.
+
+## Style
+Classic storybook watercolor illustration. Soft, dreamy colors with gentle textures. Hand-painted feel with visible brushstrokes. Warm, inviting atmosphere suitable for young children.
+
+## Composition
+- Square format (1:1 aspect ratio)
+- Clear focal point in center
+- Soft, diffused lighting
+- Gentle shadows, no harsh contrasts
+- Warm color palette with pastels
+
+## Character Style
+- Rounded, friendly shapes
+- Expressive but not exaggerated faces
+- Soft fur/skin textures
+- Warm, welcoming expressions
+
+## Environment Style
+- Cozy, safe-feeling spaces
+- Nature elements: soft grass, fluffy clouds, friendly trees
+- Warm lighting suggesting golden hour
+- Whimsical but not scary details
+
+## Avoid
+- Sharp edges or angular shapes
+- Dark, scary, or threatening imagery
+- Realistic violence or danger
+- Complex, busy compositions
+- Photorealistic style
