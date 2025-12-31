@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/agent_event.dart';
+import '../services/elevenlabs_service.dart';
+import '../services/permission_service.dart';
 
 /// Session status for story playback.
 enum StorySessionStatus {
@@ -54,5 +57,74 @@ class StoryState {
       error: clearError ? null : (error ?? this.error),
       lastInteractionTime: lastInteractionTime ?? this.lastInteractionTime,
     );
+  }
+}
+
+/// Manages story playback state and orchestrates services.
+class StoryNotifier extends StateNotifier<StoryState> {
+  final ElevenLabsService _elevenLabs;
+  final PermissionService _permission;
+  StreamSubscription<AgentEvent>? _eventSubscription;
+
+  StoryNotifier({
+    required String storyId,
+    required ElevenLabsService elevenLabs,
+    required PermissionService permission,
+  })  : _elevenLabs = elevenLabs,
+        _permission = permission,
+        super(StoryState(storyId: storyId)) {
+    _subscribeToEvents();
+  }
+
+  void _subscribeToEvents() {
+    _eventSubscription = _elevenLabs.events.listen(_handleEvent);
+  }
+
+  void _handleEvent(AgentEvent event) {
+    switch (event) {
+      case SceneChange(sceneName: final scene):
+        state = state.copyWith(currentScene: scene);
+
+      case SuggestedActions(actions: final actions):
+        state = state.copyWith(suggestedActions: actions);
+
+      case GenerateImage():
+        // TODO: Defer to Phase 3
+        break;
+
+      case SessionEnded():
+        state = state.copyWith(sessionStatus: StorySessionStatus.ended);
+
+      case AgentStartedSpeaking():
+        state = state.copyWith(
+          isAgentSpeaking: true,
+          suggestedActions: [],
+        );
+
+      case AgentStoppedSpeaking():
+        state = state.copyWith(isAgentSpeaking: false);
+
+      case UserTranscript():
+        // Could log for debugging
+        break;
+
+      case AgentResponse():
+        // Could log for debugging
+        break;
+
+      case ConnectionStatusChanged(status: final status):
+        state = state.copyWith(connectionStatus: status);
+
+      case AgentError(message: final msg, context: final ctx):
+        state = state.copyWith(
+          error: '$msg${ctx != null ? ': $ctx' : ''}',
+        );
+    }
+  }
+
+  @override
+  void dispose() {
+    _eventSubscription?.cancel();
+    super.dispose();
   }
 }

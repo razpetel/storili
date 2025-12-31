@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:storili/models/agent_event.dart';
 import 'package:storili/providers/story_provider.dart';
+import 'package:storili/services/elevenlabs_service.dart';
+import 'package:storili/services/permission_service.dart';
 
 void main() {
   group('StorySessionStatus', () {
@@ -61,4 +64,182 @@ void main() {
       expect(cleared.error, isNull);
     });
   });
+
+  group('StoryNotifier', () {
+    late StreamController<AgentEvent> eventController;
+    late MockElevenLabsService mockService;
+    late MockPermissionService mockPermission;
+
+    setUp(() {
+      eventController = StreamController<AgentEvent>.broadcast();
+      mockService = MockElevenLabsService(eventController.stream);
+      mockPermission = MockPermissionService(
+        checkResult: MicPermissionStatus.granted,
+        requestResult: MicPermissionStatus.granted,
+      );
+    });
+
+    tearDown(() {
+      eventController.close();
+    });
+
+    test('initial state is idle', () {
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: mockService,
+        permission: mockPermission,
+      );
+
+      expect(notifier.state.sessionStatus, StorySessionStatus.idle);
+      notifier.dispose();
+    });
+
+    test('handles SceneChange event', () async {
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: mockService,
+        permission: mockPermission,
+      );
+
+      eventController.add(const SceneChange('brick_house'));
+      await Future.delayed(const Duration(milliseconds: 10));
+
+      expect(notifier.state.currentScene, 'brick_house');
+      notifier.dispose();
+    });
+
+    test('handles SuggestedActions event', () async {
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: mockService,
+        permission: mockPermission,
+      );
+
+      eventController.add(const SuggestedActions(['Run', 'Hide']));
+      await Future.delayed(const Duration(milliseconds: 10));
+
+      expect(notifier.state.suggestedActions, ['Run', 'Hide']);
+      notifier.dispose();
+    });
+
+    test('handles AgentStartedSpeaking - clears actions', () async {
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: mockService,
+        permission: mockPermission,
+      );
+
+      // First add some actions
+      eventController.add(const SuggestedActions(['Action1']));
+      await Future.delayed(const Duration(milliseconds: 10));
+      expect(notifier.state.suggestedActions, isNotEmpty);
+
+      // Then agent starts speaking
+      eventController.add(const AgentStartedSpeaking());
+      await Future.delayed(const Duration(milliseconds: 10));
+
+      expect(notifier.state.isAgentSpeaking, true);
+      expect(notifier.state.suggestedActions, isEmpty);
+      notifier.dispose();
+    });
+
+    test('handles AgentStoppedSpeaking', () async {
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: mockService,
+        permission: mockPermission,
+      );
+
+      eventController.add(const AgentStartedSpeaking());
+      await Future.delayed(const Duration(milliseconds: 10));
+      expect(notifier.state.isAgentSpeaking, true);
+
+      eventController.add(const AgentStoppedSpeaking());
+      await Future.delayed(const Duration(milliseconds: 10));
+
+      expect(notifier.state.isAgentSpeaking, false);
+      notifier.dispose();
+    });
+
+    test('handles SessionEnded event', () async {
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: mockService,
+        permission: mockPermission,
+      );
+
+      eventController.add(const SessionEnded('Great adventure!'));
+      await Future.delayed(const Duration(milliseconds: 10));
+
+      expect(notifier.state.sessionStatus, StorySessionStatus.ended);
+      notifier.dispose();
+    });
+
+    test('handles ConnectionStatusChanged event', () async {
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: mockService,
+        permission: mockPermission,
+      );
+
+      eventController.add(const ConnectionStatusChanged(
+        ElevenLabsConnectionStatus.connected,
+      ));
+      await Future.delayed(const Duration(milliseconds: 10));
+
+      expect(notifier.state.connectionStatus, ElevenLabsConnectionStatus.connected);
+      notifier.dispose();
+    });
+
+    test('handles AgentError event', () async {
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: mockService,
+        permission: mockPermission,
+      );
+
+      eventController.add(const AgentError('Something failed', 'context'));
+      await Future.delayed(const Duration(milliseconds: 10));
+
+      expect(notifier.state.error, contains('Something failed'));
+      expect(notifier.state.error, contains('context'));
+      notifier.dispose();
+    });
+  });
+}
+
+class MockElevenLabsService implements ElevenLabsService {
+  final Stream<AgentEvent> _events;
+
+  MockElevenLabsService(this._events);
+
+  @override
+  Stream<AgentEvent> get events => _events;
+
+  @override
+  ElevenLabsConnectionStatus get status => ElevenLabsConnectionStatus.disconnected;
+
+  @override
+  bool get isAgentSpeaking => false;
+
+  @override
+  bool get isMuted => false;
+
+  @override
+  Future<void> startSession({required String agentId, String? childName}) async {}
+
+  @override
+  Future<void> endSession() async {}
+
+  @override
+  void sendMessage(String text) {}
+
+  @override
+  Future<bool> toggleMute() async => false;
+
+  @override
+  Future<void> setMuted(bool muted) async {}
+
+  @override
+  void dispose() {}
 }
