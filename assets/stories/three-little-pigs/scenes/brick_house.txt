@@ -1,0 +1,23 @@
+# Scene: Brick House
+
+Base art prompt for image generation. Agent enriches with story context.
+
+## Setting
+Strong brick house on a gentle hill where all pigs are safe.
+
+## Base Prompt
+A sturdy red brick house with a smoking chimney sits proudly on a gentle green hill. The house has a strong wooden door, cute shuttered windows, and a neat brick path leading to it. Three happy little pigs peek out from different windows, waving. The silly wolf sits exhausted on the ground outside, red-faced and out of breath. Warm golden afternoon sunlight. Classic storybook watercolor illustration style, soft textures, child-friendly, triumphant atmosphere.
+
+## Key Elements
+- Red brick house (sturdy, strong)
+- Chimney with cozy smoke
+- Three pigs in windows
+- Exhausted wolf outside
+- Gentle hill setting
+- Triumphant, safe feeling
+
+## Variant: Wolf Huffing
+Wolf taking a huge breath, cheeks puffed out comically. Pigs watching from windows with amused expressions.
+
+## Variant: Wolf Defeated
+Wolf walking away with slumped shoulders, looking embarrassed. Maybe a tiny rain cloud over his head. Pigs cheering in windows.

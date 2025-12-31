@@ -1,0 +1,18 @@
+# Scene: Cottage
+
+Base art prompt for image generation. Agent enriches with story context.
+
+## Setting
+Mama Pig's cozy family cottage at the start of the journey.
+
+## Base Prompt
+A cozy thatched cottage with a cheerful red door, surrounded by a colorful flower garden with daisies and sunflowers. Mama Pig, a warm pink pig wearing an apron, waves from the doorway. Three little pigs wearing small adventure backpacks stand on the cobblestone path, looking excited. Warm golden morning sunlight bathes the scene. Puffy white clouds in bright blue sky. Classic storybook watercolor illustration style, soft textures, child-friendly, warm and inviting.
+
+## Key Elements
+- Thatched roof cottage
+- Red door
+- Flower garden
+- Mama Pig in doorway
+- Three pigs with backpacks
+- Cobblestone path
+- Morning sunlight
