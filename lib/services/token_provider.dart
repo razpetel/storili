@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../models/token_exception.dart';
 
 abstract class TokenProvider {
@@ -22,5 +25,51 @@ class MockTokenProvider implements TokenProvider {
       throw _exception;
     }
     return _fixedToken!;
+  }
+}
+
+class CloudflareTokenProvider implements TokenProvider {
+  final http.Client _client;
+  final Uri _baseUrl;
+  final Duration _timeout;
+
+  CloudflareTokenProvider({
+    required Uri baseUrl,
+    http.Client? client,
+    Duration timeout = const Duration(seconds: 10),
+  })  : _baseUrl = baseUrl,
+        _client = client ?? http.Client(),
+        _timeout = timeout;
+
+  @override
+  Future<String> getToken(String agentId) async {
+    try {
+      final response = await _client
+          .post(
+            _baseUrl,
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'agent_id': agentId}),
+          )
+          .timeout(_timeout);
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        return data['token'] as String;
+      } else if (response.statusCode == 400) {
+        throw TokenException('Invalid agent: $agentId', TokenErrorType.invalidAgent);
+      } else if (response.statusCode == 429) {
+        throw const TokenException('Rate limit exceeded', TokenErrorType.rateLimited);
+      } else {
+        throw TokenException('Server error: ${response.statusCode}', TokenErrorType.serverError);
+      }
+    } on TimeoutException {
+      throw const TokenException('Request timed out', TokenErrorType.network);
+    } on http.ClientException catch (e) {
+      throw TokenException('Network error: ${e.message}', TokenErrorType.network);
+    } on TokenException {
+      rethrow;
+    } catch (e) {
+      throw TokenException('Unexpected error: $e', TokenErrorType.network);
+    }
   }
 }
