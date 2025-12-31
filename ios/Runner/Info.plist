@@ -45,5 +45,7 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Storili needs your microphone so Capy can hear you talk during stories!</string>
 </dict>
 </plist>
