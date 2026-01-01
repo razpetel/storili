@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/agent_event.dart';
 import '../services/elevenlabs_service.dart';
@@ -155,10 +156,18 @@ class StoryNotifier extends StateNotifier<StoryState> {
         sessionStatus: StorySessionStatus.active,
         lastInteractionTime: DateTime.now(),
       );
-    } catch (e) {
+    } catch (e, stackTrace) {
+      // Convert any exception type to string safely
+      String errorMessage;
+      try {
+        errorMessage = e.toString();
+      } catch (_) {
+        errorMessage = 'Unknown error occurred';
+      }
+      debugPrint('Story start error: $errorMessage\n$stackTrace');
       state = state.copyWith(
         sessionStatus: StorySessionStatus.error,
-        error: e.toString(),
+        error: errorMessage,
       );
     }
   }

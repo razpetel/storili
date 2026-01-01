@@ -69,7 +69,8 @@ class CloudflareTokenProvider implements TokenProvider {
     } on TokenException {
       rethrow;
     } catch (e) {
-      throw TokenException('Unexpected error: $e', TokenErrorType.network);
+      // Handle any other exceptions (including platform-specific ones)
+      throw TokenException('Connection error: $e', TokenErrorType.network);
     }
   }
 }

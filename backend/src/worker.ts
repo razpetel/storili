@@ -49,9 +49,10 @@ export default {
         );
       }
 
-      // Fetch signed URL from ElevenLabs
+      // Fetch conversation token from ElevenLabs (for WebRTC/Flutter SDK)
+      // Note: Use /token endpoint for WebRTC, /get-signed-url for WebSocket
       const elevenLabsResponse = await fetch(
-        `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${agentId}`,
+        `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${agentId}`,
         {
           headers: {
             'xi-api-key': env.ELEVENLABS_API_KEY,
@@ -60,17 +61,18 @@ export default {
       );
 
       if (!elevenLabsResponse.ok) {
-        console.error(`ElevenLabs API error: ${elevenLabsResponse.status}`);
+        const errorText = await elevenLabsResponse.text();
+        console.error(`ElevenLabs API error: ${elevenLabsResponse.status} - ${errorText}`);
         return new Response(
           JSON.stringify({ error: 'Token generation failed' }),
           { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
-      const data = await elevenLabsResponse.json() as { signed_url: string };
+      const data = await elevenLabsResponse.json() as { token: string };
 
       return new Response(
-        JSON.stringify({ token: data.signed_url }),
+        JSON.stringify({ token: data.token }),
         {
           status: 200,
           headers: {

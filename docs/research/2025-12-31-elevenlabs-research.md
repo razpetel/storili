@@ -102,6 +102,38 @@ class ChangeSceneTool implements ClientTool {
 4. **Handle events**: Process audio, tools, transcripts via callbacks
 5. **End session**: Graceful disconnect with summary
 
+### Authentication: WebRTC vs WebSocket
+
+> **CRITICAL:** The Flutter SDK uses WebRTC (LiveKit), which requires a **conversation token**, NOT a signed URL.
+
+| Connection Type | Endpoint | Response Field | Use Case |
+|-----------------|----------|----------------|----------|
+| **WebRTC** (Flutter SDK) | `/v1/convai/conversation/token` | `token` (JWT) | Mobile/Flutter apps |
+| **WebSocket** | `/v1/convai/conversation/get-signed-url` | `signed_url` | Web apps using raw WebSocket |
+
+**Wrong approach (causes 401 error):**
+```typescript
+// DON'T use this for Flutter SDK
+const response = await fetch(
+  `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${agentId}`,
+  { headers: { 'xi-api-key': apiKey } }
+);
+const { signed_url } = await response.json();
+// Returns: wss://api.elevenlabs.io/v1/convai/conversation?agent_id=...&conversation_signature=...
+// SDK tries to use this as LiveKit access_token → 401 "invalid authorization token"
+```
+
+**Correct approach:**
+```typescript
+// USE this for Flutter SDK (WebRTC/LiveKit)
+const response = await fetch(
+  `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${agentId}`,
+  { headers: { 'xi-api-key': apiKey } }
+);
+const { token } = await response.json();
+// Returns: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... (LiveKit JWT)
+```
+
 ### Audio Handling
 
 The SDK handles all audio internally:
@@ -285,11 +317,48 @@ npm run agent:status                      # Show deployed agents
 
 | Question | Decision |
 |----------|----------|
-| Token endpoint | Cloudflare Workers (implemented in Phase 2) |
-| Voice selection | "Adam" voice (`pNInz6obpgDQGcFmaJgB`) - warm, friendly |
+| Token endpoint | Cloudflare Workers using `/v1/convai/conversation/token` (NOT `/get-signed-url`) |
+| Voice selection | Voice `b8gbDO0ybjX1VA89pBdX` with tuned TTS settings |
 | Character voices | Single agent with inline switching via prompt instructions |
 | Workflow vs Single Agent | Single agent for MVP, workflow optional later |
 | Dashboard vs API | API-first with TypeScript configs |
+| Connection type | WebRTC via LiveKit (Flutter SDK default) |
+
+## End-to-End Testing Results (2026-01-01)
+
+### Verified Working
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| Token worker | ✅ | `storili-token-dev.razpetel.workers.dev` returns JWT |
+| WebRTC connection | ✅ | `ElevenLabs connected: conv_...` |
+| Agent responds | ✅ | First message plays, calls tools |
+| `change_scene` tool | ✅ | UI shows "Scene: cottage" |
+| Error handling | ✅ | Clean error messages (no type errors) |
+
+### Known Issues Fixed
+
+1. **TypeError with ConnectException** - SDK `onError` callback can pass exception objects instead of strings
+   - Fix: Convert to string in callback handler
+   - Files: `elevenlabs_service.dart`, `story_provider.dart`
+
+2. **401 "invalid authorization token"** - Using wrong token endpoint
+   - Cause: `get-signed-url` returns WebSocket URL, SDK needs LiveKit JWT
+   - Fix: Use `/v1/convai/conversation/token` endpoint
+   - Files: `backend/src/worker.ts`
+
+### TTS Settings (Tuned)
+
+```typescript
+tts: {
+  voice_id: 'b8gbDO0ybjX1VA89pBdX',
+  model_id: 'eleven_turbo_v2',
+  stability: 0.5,
+  similarity_boost: 0.65,
+  style: 0.8,
+  speed: 0.85,
+}
+```
 
 ## References
 

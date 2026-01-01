@@ -52,10 +52,12 @@ export const config: AgentConfig = {
       },
     },
     tts: {
-      voice_id: 'pNInz6obpgDQGcFmaJgB',  // "Adam" - warm, friendly
-      model_id: 'eleven_turbo_v2_5',
-      stability: 0.7,
-      similarity_boost: 0.8,
+      voice_id: 'b8gbDO0ybjX1VA89pBdX',  // Expressive storytelling voice (tuned 2026-01-01)
+      model_id: 'eleven_turbo_v2',        // Required for English agents (not v2_5)
+      stability: 0.5,
+      similarity_boost: 0.65,
+      style: 0.8,                         // High expressiveness
+      speed: 0.85,                        // 15% slower for clarity
     },
     turn: {
       turn_timeout: 15,              // Kids need time to think
@@ -219,27 +221,30 @@ Request:                Request:                  Agent receives:
 
 **Updated worker.ts:**
 
+> **IMPORTANT:** Use `/v1/convai/conversation/token` for Flutter SDK (WebRTC/LiveKit).
+> Do NOT use `/get-signed-url` - that's for WebSocket connections only.
+
 ```typescript
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
-    const { storyId, childName, resumeSummary } = await request.json();
+    const { story_id } = await request.json();
 
-    const agentId = env[`AGENT_ID_${storyId.toUpperCase().replace(/-/g, '_')}`];
+    const agentId = env[`AGENT_ID_${story_id.toUpperCase().replace(/-/g, '_')}`];
     if (!agentId) {
-      return Response.json({ error: 'Unknown story' }, { status: 404 });
+      return Response.json({ error: 'Unknown story' }, { status: 400 });
     }
 
-    // Build dynamic variables for personalization
-    const dynamicVariables: Record<string, string> = {};
-    if (childName) dynamicVariables.child_name = childName;
-    if (resumeSummary) dynamicVariables.resume_summary = resumeSummary;
+    // Get conversation token (NOT signed URL) for WebRTC/Flutter SDK
+    const elevenLabsResponse = await fetch(
+      `https://api.elevenlabs.io/v1/convai/conversation/token?agent_id=${agentId}`,
+      { headers: { 'xi-api-key': env.ELEVENLABS_API_KEY } }
+    );
 
-    const token = await generateConversationToken({
-      agentId,
-      apiKey: env.ELEVENLABS_API_KEY,
-      dynamicVariables,
-    });
+    if (!elevenLabsResponse.ok) {
+      return Response.json({ error: 'Token generation failed' }, { status: 502 });
+    }
 
+    const { token } = await elevenLabsResponse.json();
     return Response.json({ token });
   },
 };

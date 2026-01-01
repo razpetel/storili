@@ -78,7 +78,10 @@ class ElevenLabsService extends ChangeNotifier {
       onError: (message, [context]) {
         debugPrint('ElevenLabs error: $message ($context)');
         if (!_eventController.isClosed) {
-          _eventController.add(AgentError(message, context));
+          // Ensure message and context are strings (SDK may pass exceptions)
+          final msgStr = message is String ? message : message.toString();
+          final ctxStr = context is String ? context : context?.toString();
+          _eventController.add(AgentError(msgStr, ctxStr));
         }
       },
       onMessage: ({required message, required source}) {
