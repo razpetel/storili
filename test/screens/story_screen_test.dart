@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,7 +8,10 @@ import 'package:storili/providers/services.dart';
 import 'package:storili/providers/story_provider.dart';
 import 'package:storili/screens/story_screen.dart';
 import 'package:storili/services/elevenlabs_service.dart';
+import 'package:storili/services/image_cache.dart' as image_cache;
+import 'package:storili/services/image_service.dart';
 import 'package:storili/services/permission_service.dart';
+import 'package:storili/widgets/scene_image.dart';
 
 void main() {
   group('StoryScreen', () {
@@ -26,6 +30,8 @@ void main() {
                 requestResult: MicPermissionStatus.granted,
               ),
             ),
+            imageServiceProvider.overrideWithValue(_MockImageService()),
+            imageCacheProvider.overrideWithValue(image_cache.ImageCache()),
           ],
           child: const MaterialApp(
             home: StoryScreen(storyId: 'three-little-pigs'),
@@ -55,6 +61,8 @@ void main() {
                 requestResult: MicPermissionStatus.granted,
               ),
             ),
+            imageServiceProvider.overrideWithValue(_MockImageService()),
+            imageCacheProvider.overrideWithValue(image_cache.ImageCache()),
           ],
           child: Consumer(
             builder: (context, ref, child) {
@@ -100,6 +108,8 @@ void main() {
                 requestResult: MicPermissionStatus.granted,
               ),
             ),
+            imageServiceProvider.overrideWithValue(_MockImageService()),
+            imageCacheProvider.overrideWithValue(image_cache.ImageCache()),
           ],
           child: const MaterialApp(
             home: StoryScreen(storyId: 'three-little-pigs'),
@@ -114,7 +124,7 @@ void main() {
       await eventController.close();
     });
 
-    testWidgets('shows scene indicator when active', (tester) async {
+    testWidgets('shows scene image when active', (tester) async {
       final eventController = StreamController<AgentEvent>.broadcast();
 
       late ProviderContainer container;
@@ -130,6 +140,8 @@ void main() {
                 requestResult: MicPermissionStatus.granted,
               ),
             ),
+            imageServiceProvider.overrideWithValue(_MockImageService()),
+            imageCacheProvider.overrideWithValue(image_cache.ImageCache()),
           ],
           child: Consumer(
             builder: (context, ref, child) {
@@ -147,15 +159,8 @@ void main() {
       await notifier.startStory();
       await tester.pumpAndSettle();
 
-      // Default scene is 'cottage'
-      expect(find.text('Scene: cottage'), findsOneWidget);
-
-      // Change scene
-      eventController.add(const SceneChange('brick_house'));
-      // Give time for the stream event to propagate
-      await tester.pump(const Duration(milliseconds: 50));
-
-      expect(find.text('Scene: brick_house'), findsOneWidget);
+      // Should show SceneImage widget
+      expect(find.byType(SceneImage), findsOneWidget);
 
       await eventController.close();
     });
@@ -176,6 +181,8 @@ void main() {
                 requestResult: MicPermissionStatus.granted,
               ),
             ),
+            imageServiceProvider.overrideWithValue(_MockImageService()),
+            imageCacheProvider.overrideWithValue(image_cache.ImageCache()),
           ],
           child: Consumer(
             builder: (context, ref, child) {
@@ -226,6 +233,8 @@ void main() {
                 requestResult: MicPermissionStatus.denied,
               ),
             ),
+            imageServiceProvider.overrideWithValue(_MockImageService()),
+            imageCacheProvider.overrideWithValue(image_cache.ImageCache()),
           ],
           child: const MaterialApp(
             home: StoryScreen(storyId: 'three-little-pigs'),
@@ -297,4 +306,20 @@ class _MockElevenLabsService extends ChangeNotifier implements ElevenLabsService
   @override
   Future<void> setMuted(bool muted) async {}
 
+}
+
+class _MockImageService implements ImageService {
+  @override
+  String get apiKey => 'test-key';
+
+  @override
+  int get maxRetries => 2;
+
+  @override
+  Future<Uint8List> generate(String prompt) async {
+    return Uint8List.fromList([]);
+  }
+
+  @override
+  void dispose() {}
 }

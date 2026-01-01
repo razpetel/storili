@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/story_provider.dart';
+import '../widgets/scene_image.dart';
+import '../services/image_cache.dart' as image_cache;
+import '../providers/services.dart';
 
 class StoryScreen extends ConsumerWidget {
   final String storyId;
@@ -12,6 +15,7 @@ class StoryScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(storyProvider(storyId));
     final notifier = ref.read(storyProvider(storyId).notifier);
+    final imageCache = ref.watch(imageCacheProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -21,18 +25,18 @@ class StoryScreen extends ConsumerWidget {
           onPressed: () => _showEndDialog(context, notifier),
         ),
       ),
-      body: _buildBody(context, state, notifier),
+      body: _buildBody(context, state, notifier, imageCache),
     );
   }
 
-  Widget _buildBody(BuildContext context, StoryState state, StoryNotifier notifier) {
+  Widget _buildBody(BuildContext context, StoryState state, StoryNotifier notifier, image_cache.ImageCache imageCache) {
     switch (state.sessionStatus) {
       case StorySessionStatus.idle:
         return _buildIdleState(notifier);
       case StorySessionStatus.loading:
         return _buildLoadingState();
       case StorySessionStatus.active:
-        return _buildActiveState(state, notifier);
+        return _buildActiveState(context, state, notifier, imageCache);
       case StorySessionStatus.ending:
         return _buildLoadingState(message: 'Ending story...');
       case StorySessionStatus.ended:
@@ -78,15 +82,21 @@ class StoryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildActiveState(StoryState state, StoryNotifier notifier) {
+  Widget _buildActiveState(BuildContext context, StoryState state, StoryNotifier notifier, image_cache.ImageCache imageCache) {
+    final imageBytes = state.currentImageIndex != null
+        ? imageCache.get(state.currentImageIndex!)
+        : null;
+
     return Column(
       children: [
-        // Scene indicator
-        Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(
-            'Scene: ${state.currentScene}',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        // Scene image (use Flexible to allow it to shrink)
+        Flexible(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: SceneImage(
+              imageBytes: imageBytes,
+              isLoading: state.isImageLoading,
+            ),
           ),
         ),
 
@@ -103,8 +113,6 @@ class StoryScreen extends ConsumerWidget {
               ],
             ),
           ),
-
-        const Spacer(),
 
         // Action cards
         if (state.suggestedActions.isNotEmpty)

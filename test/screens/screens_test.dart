@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,6 +10,8 @@ import 'package:storili/screens/story_screen.dart';
 import 'package:storili/screens/settings_screen.dart';
 import 'package:storili/screens/celebration_screen.dart';
 import 'package:storili/services/elevenlabs_service.dart';
+import 'package:storili/services/image_cache.dart' as image_cache;
+import 'package:storili/services/image_service.dart';
 import 'package:storili/services/permission_service.dart';
 
 void main() {
@@ -35,6 +38,8 @@ void main() {
                 requestResult: MicPermissionStatus.granted,
               ),
             ),
+            imageServiceProvider.overrideWithValue(_MockImageService()),
+            imageCacheProvider.overrideWithValue(image_cache.ImageCache()),
           ],
           child: const MaterialApp(home: StoryScreen(storyId: 'test-story')),
         ),
@@ -111,4 +116,20 @@ class _MockElevenLabsService extends ChangeNotifier implements ElevenLabsService
   @override
   Future<void> setMuted(bool muted) async {}
 
+}
+
+class _MockImageService implements ImageService {
+  @override
+  String get apiKey => 'test-key';
+
+  @override
+  int get maxRetries => 2;
+
+  @override
+  Future<Uint8List> generate(String prompt) async {
+    return Uint8List.fromList([]);
+  }
+
+  @override
+  void dispose() {}
 }

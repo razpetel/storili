@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,6 +7,8 @@ import 'package:storili/models/agent_event.dart';
 import 'package:storili/providers/services.dart';
 import 'package:storili/providers/story_provider.dart';
 import 'package:storili/services/elevenlabs_service.dart';
+import 'package:storili/services/image_cache.dart';
+import 'package:storili/services/image_service.dart';
 import 'package:storili/services/permission_service.dart';
 
 void main() {
@@ -34,6 +37,9 @@ void main() {
       expect(state.connectionStatus, ElevenLabsConnectionStatus.disconnected);
       expect(state.error, isNull);
       expect(state.lastInteractionTime, isNull);
+      expect(state.currentImageIndex, isNull);
+      expect(state.imageCount, 0);
+      expect(state.isImageLoading, false);
     });
 
     test('copyWith creates new instance with updated values', () {
@@ -273,7 +279,8 @@ void main() {
       await notifier.startStory();
       await notifier.endStory();
 
-      expect(notifier.state.sessionStatus, StorySessionStatus.ending);
+      // After endStory completes, status resets to idle for fresh restart
+      expect(notifier.state.sessionStatus, StorySessionStatus.idle);
       notifier.dispose();
     });
 
@@ -313,6 +320,99 @@ void main() {
       expect(notifier.state.lastInteractionTime, isNotNull);
       notifier.dispose();
     });
+
+    test('GenerateImage event triggers image loading state', () async {
+      // Use a slow mock that doesn't complete immediately
+      final slowMockImageService = SlowMockImageService();
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: MockElevenLabsService(eventController.stream),
+        permission: mockPermission,
+        imageService: slowMockImageService,
+        imageCache: ImageCache(),
+      );
+
+      await notifier.startStory();
+
+      eventController.add(const GenerateImage('test prompt'));
+      await Future.microtask(() {});
+
+      expect(notifier.state.isImageLoading, isTrue);
+
+      // Complete the slow operation before disposing
+      slowMockImageService.completer.complete(Uint8List.fromList([1, 2, 3]));
+      await Future.delayed(const Duration(milliseconds: 10));
+      notifier.dispose();
+    });
+
+    test('successful image generation updates state', () async {
+      final imageCache = ImageCache();
+      final mockImageService = MockImageService(
+        generateResult: Uint8List.fromList([1, 2, 3]),
+      );
+
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: MockElevenLabsService(eventController.stream),
+        permission: mockPermission,
+        imageService: mockImageService,
+        imageCache: imageCache,
+      );
+
+      await notifier.startStory();
+
+      eventController.add(const GenerateImage('test prompt'));
+      await Future.delayed(const Duration(milliseconds: 50));
+
+      expect(notifier.state.isImageLoading, isFalse);
+      expect(notifier.state.currentImageIndex, 0);
+      expect(notifier.state.imageCount, 1);
+      expect(imageCache.get(0), isNotNull);
+      notifier.dispose();
+    });
+
+    test('failed image generation stops loading but keeps previous state', () async {
+      final imageCache = ImageCache();
+      final mockImageService = MockImageService(
+        generateError: Exception('API error'),
+      );
+
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: MockElevenLabsService(eventController.stream),
+        permission: mockPermission,
+        imageService: mockImageService,
+        imageCache: imageCache,
+      );
+
+      await notifier.startStory();
+
+      eventController.add(const GenerateImage('test prompt'));
+      await Future.delayed(const Duration(milliseconds: 50));
+
+      expect(notifier.state.isImageLoading, isFalse);
+      expect(notifier.state.currentImageIndex, isNull);
+      expect(notifier.state.imageCount, 0);
+      notifier.dispose();
+    });
+
+    test('GenerateImage without imageService does nothing', () async {
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: MockElevenLabsService(eventController.stream),
+        permission: mockPermission,
+        // No imageService or imageCache
+      );
+
+      await notifier.startStory();
+
+      eventController.add(const GenerateImage('test prompt'));
+      await Future.delayed(const Duration(milliseconds: 10));
+
+      expect(notifier.state.isImageLoading, isFalse);
+      expect(notifier.state.currentImageIndex, isNull);
+      notifier.dispose();
+    });
   });
 
   group('storyProvider', () {
@@ -329,6 +429,12 @@ void main() {
               checkResult: MicPermissionStatus.granted,
               requestResult: MicPermissionStatus.granted,
             ),
+          ),
+          imageServiceProvider.overrideWithValue(
+            MockImageService(),
+          ),
+          imageCacheProvider.overrideWithValue(
+            ImageCache(),
           ),
         ],
       );
@@ -405,4 +511,42 @@ class MockElevenLabsService extends ChangeNotifier implements ElevenLabsService 
   @override
   Future<void> setMuted(bool muted) async {}
 
+}
+
+class MockImageService implements ImageService {
+  final Uint8List? generateResult;
+  final Exception? generateError;
+
+  MockImageService({this.generateResult, this.generateError});
+
+  @override
+  String get apiKey => 'test-key';
+
+  @override
+  int get maxRetries => 2;
+
+  @override
+  Future<Uint8List> generate(String prompt) async {
+    if (generateError != null) throw generateError!;
+    return generateResult ?? Uint8List.fromList([]);
+  }
+
+  @override
+  void dispose() {}
+}
+
+class SlowMockImageService implements ImageService {
+  final Completer<Uint8List> completer = Completer<Uint8List>();
+
+  @override
+  String get apiKey => 'test-key';
+
+  @override
+  int get maxRetries => 2;
+
+  @override
+  Future<Uint8List> generate(String prompt) => completer.future;
+
+  @override
+  void dispose() {}
 }

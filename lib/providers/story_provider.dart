@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/agent_event.dart';
 import '../services/elevenlabs_service.dart';
+import '../services/image_cache.dart';
+import '../services/image_service.dart';
 import '../services/permission_service.dart';
 import 'services.dart';
 
@@ -26,6 +28,9 @@ class StoryState {
   final ElevenLabsConnectionStatus connectionStatus;
   final String? error;
   final DateTime? lastInteractionTime;
+  final int? currentImageIndex;
+  final int imageCount;
+  final bool isImageLoading;
 
   const StoryState({
     required this.storyId,
@@ -36,6 +41,9 @@ class StoryState {
     this.connectionStatus = ElevenLabsConnectionStatus.disconnected,
     this.error,
     this.lastInteractionTime,
+    this.currentImageIndex,
+    this.imageCount = 0,
+    this.isImageLoading = false,
   });
 
   StoryState copyWith({
@@ -48,6 +56,9 @@ class StoryState {
     String? error,
     DateTime? lastInteractionTime,
     bool clearError = false,
+    int? currentImageIndex,
+    int? imageCount,
+    bool? isImageLoading,
   }) {
     return StoryState(
       storyId: storyId ?? this.storyId,
@@ -58,6 +69,9 @@ class StoryState {
       connectionStatus: connectionStatus ?? this.connectionStatus,
       error: clearError ? null : (error ?? this.error),
       lastInteractionTime: lastInteractionTime ?? this.lastInteractionTime,
+      currentImageIndex: currentImageIndex ?? this.currentImageIndex,
+      imageCount: imageCount ?? this.imageCount,
+      isImageLoading: isImageLoading ?? this.isImageLoading,
     );
   }
 }
@@ -66,14 +80,20 @@ class StoryState {
 class StoryNotifier extends StateNotifier<StoryState> {
   final ElevenLabsService _elevenLabs;
   final PermissionService _permission;
+  final ImageService? _imageService;
+  final ImageCache? _imageCache;
   StreamSubscription<AgentEvent>? _eventSubscription;
 
   StoryNotifier({
     required String storyId,
     required ElevenLabsService elevenLabs,
     required PermissionService permission,
+    ImageService? imageService,
+    ImageCache? imageCache,
   })  : _elevenLabs = elevenLabs,
         _permission = permission,
+        _imageService = imageService,
+        _imageCache = imageCache,
         super(StoryState(storyId: storyId)) {
     _subscribeToEvents();
   }
@@ -90,9 +110,8 @@ class StoryNotifier extends StateNotifier<StoryState> {
       case SuggestedActions(actions: final actions):
         state = state.copyWith(suggestedActions: actions);
 
-      case GenerateImage():
-        // TODO: Defer to Phase 3
-        break;
+      case GenerateImage(prompt: final prompt):
+        _generateImage(prompt);
 
       case SessionEnded():
         state = state.copyWith(sessionStatus: StorySessionStatus.ended);
@@ -121,6 +140,28 @@ class StoryNotifier extends StateNotifier<StoryState> {
         state = state.copyWith(
           error: '$msg${ctx != null ? ': $ctx' : ''}',
         );
+    }
+  }
+
+  Future<void> _generateImage(String prompt) async {
+    if (_imageService == null || _imageCache == null) return;
+
+    state = state.copyWith(isImageLoading: true);
+
+    try {
+      final bytes = await _imageService!.generate(prompt);
+      final index = state.imageCount;
+      _imageCache!.store(index, bytes);
+
+      state = state.copyWith(
+        isImageLoading: false,
+        currentImageIndex: index,
+        imageCount: index + 1,
+      );
+    } catch (e) {
+      // On failure, just stop loading - keep previous image if any
+      state = state.copyWith(isImageLoading: false);
+      debugPrint('Image generation failed: $e');
     }
   }
 
@@ -207,10 +248,14 @@ final storyProvider = StateNotifierProvider.family<StoryNotifier, StoryState, St
   (ref, storyId) {
     final elevenLabs = ref.watch(elevenLabsServiceProvider);
     final permission = ref.watch(permissionServiceProvider);
+    final imageService = ref.watch(imageServiceProvider);
+    final imageCache = ref.watch(imageCacheProvider);
     return StoryNotifier(
       storyId: storyId,
       elevenLabs: elevenLabs,
       permission: permission,
+      imageService: imageService,
+      imageCache: imageCache,
     );
   },
 );
