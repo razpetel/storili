@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/story_provider.dart';
 
 class StoryScreen extends ConsumerWidget {
@@ -175,9 +176,9 @@ class StoryScreen extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.pop(context); // Close dialog
               notifier.endStory();
-              Navigator.pop(context); // Go back to home
+              context.go('/'); // Navigate to home
             },
             child: const Text('End Now'),
           ),

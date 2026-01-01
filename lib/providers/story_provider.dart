@@ -176,6 +176,8 @@ class StoryNotifier extends StateNotifier<StoryState> {
   Future<void> endStory() async {
     state = state.copyWith(sessionStatus: StorySessionStatus.ending);
     await _elevenLabs.endSession();
+    // Reset to idle so user can start fresh when re-entering
+    state = state.copyWith(sessionStatus: StorySessionStatus.idle);
   }
 
   /// Called when child taps an action card.
