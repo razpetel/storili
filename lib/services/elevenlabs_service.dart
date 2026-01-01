@@ -144,17 +144,10 @@ class ElevenLabsService extends ChangeNotifier {
       dynamicVariables['resume_summary'] = resumeSummary;
     }
 
-    // Start the session
+    // Start the session (without overrides to avoid data channel race condition)
     await _client!.startSession(
       conversationToken: token,
-      overrides: ConversationOverrides(
-        agent: AgentOverrides(
-          firstMessage: resumeSummary != null
-              ? null // Agent will use resume context
-              : 'Hello! Ready for a story adventure?',
-        ),
-      ),
-      dynamicVariables: dynamicVariables,
+      dynamicVariables: dynamicVariables.isNotEmpty ? dynamicVariables : null,
     );
   }
 

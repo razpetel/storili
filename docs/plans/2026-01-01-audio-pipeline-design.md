@@ -428,12 +428,41 @@ export default {
 
 ## Platform Configuration
 
-### iOS (ios/Runner/Info.plist)
+### iOS
+
+#### Info.plist (ios/Runner/Info.plist)
 
 ```xml
 <key>NSMicrophoneUsageDescription</key>
 <string>Storili needs your microphone so Capy can hear your voice!</string>
+<key>UIBackgroundModes</key>
+<array>
+    <string>audio</string>
+    <string>voip</string>
+</array>
 ```
+
+#### Podfile (ios/Podfile)
+
+The `permission_handler` package requires explicit opt-in for microphone permission on iOS:
+
+```ruby
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    flutter_additional_ios_build_settings(target)
+    target.build_configurations.each do |config|
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+        '$(inherited)',
+        'PERMISSION_MICROPHONE=1',
+      ]
+    end
+  end
+end
+```
+
+#### iOS Simulator Limitation
+
+**Important:** The iOS Simulator cannot capture microphone audio with flutter_webrtc >= 1.0.0. Always test voice features on a physical iOS device.
 
 ### Android (android/app/src/main/AndroidManifest.xml)
 
@@ -461,6 +490,31 @@ export default {
 - Real device with ElevenLabs agent
 - Background/foreground transitions
 - Network interruption
+
+## Known Issues
+
+### ElevenLabs SDK Overrides Race Condition
+
+Using `ConversationOverrides` with `AgentOverrides.firstMessage` can cause a WebRTC data channel race condition on iOS:
+
+```
+PlatformException(dataChannelGetBufferedAmountFailed, Error: dataChannel not found or not opened!)
+```
+
+**Workaround:** Start sessions without overrides. Configure the agent's first message in the ElevenLabs dashboard instead:
+
+```dart
+// DON'T: Use overrides (causes race condition)
+await client.startSession(
+  conversationToken: token,
+  overrides: ConversationOverrides(
+    agent: AgentOverrides(firstMessage: 'Hello!'),
+  ),
+);
+
+// DO: Start without overrides
+await client.startSession(conversationToken: token);
+```
 
 ## Deferred to Phase 3+
 
