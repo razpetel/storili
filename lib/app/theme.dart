@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 /// Claymorphism color palette for Storili.
 /// Warm storybook colors optimized for children ages 3-5.
@@ -24,6 +25,36 @@ class AppColors {
   // Legacy (keep for backward compatibility)
   static const Color capyBrown = Color(0xFF8B5E3C);
   static const Color forestGreen = Color(0xFF4A7C59);
+}
+
+/// Typography using Fredoka (headings) and Nunito (body).
+/// Playful, rounded fonts suitable for children's apps.
+class AppTypography {
+  AppTypography._();
+
+  static TextStyle get appTitle => GoogleFonts.fredoka(
+        fontSize: 24,
+        fontWeight: FontWeight.w700,
+        color: AppColors.textPrimary,
+      );
+
+  static TextStyle get cardTitle => GoogleFonts.fredoka(
+        fontSize: 22,
+        fontWeight: FontWeight.w600,
+        color: AppColors.textPrimary,
+      );
+
+  static TextStyle get body => GoogleFonts.nunito(
+        fontSize: 18,
+        fontWeight: FontWeight.w500,
+        color: AppColors.textSecondary,
+      );
+
+  static TextStyle get button => GoogleFonts.nunito(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        color: AppColors.textPrimary,
+      );
 }
 
 class StoriliTheme {

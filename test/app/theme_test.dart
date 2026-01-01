@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:storili/app/theme.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   group('AppColors', () {
     test('primary is warm cream', () {
       expect(AppColors.primary, const Color(0xFFF5E6D3));
@@ -36,6 +38,24 @@ void main() {
       final theme = StoriliTheme.lightTheme;
       final cardTheme = theme.cardTheme;
       expect(cardTheme.shape, isA<RoundedRectangleBorder>());
+    });
+  });
+
+  group('AppTypography', () {
+    testWidgets('cardTitle uses Fredoka family', (tester) async {
+      final style = AppTypography.cardTitle;
+      expect(style.fontFamily, startsWith('Fredoka'));
+    });
+
+    testWidgets('cardTitle is 22sp semibold', (tester) async {
+      final style = AppTypography.cardTitle;
+      expect(style.fontSize, 22);
+      expect(style.fontWeight, FontWeight.w600);
+    });
+
+    testWidgets('body uses Nunito family', (tester) async {
+      final style = AppTypography.body;
+      expect(style.fontFamily, startsWith('Nunito'));
     });
   });
 }
