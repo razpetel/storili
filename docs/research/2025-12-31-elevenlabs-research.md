@@ -243,58 +243,53 @@ This keeps the API key secure on the server.
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## Agent Setup (ElevenLabs Dashboard)
+## Agent Setup (API-First)
 
-### Agent Configuration
+> **Decision:** We're using the ElevenLabs API to manage agents programmatically rather than the dashboard. See `docs/plans/2026-01-01-elevenlabs-api-agent-config-design.md` for full design.
 
-1. **Create Agent**: "Storili - Three Little Pigs"
-2. **LLM**: Claude 3.5 Sonnet (best for function calling)
-3. **Voice**: Select warm, child-friendly voice for Capy
-4. **System Prompt**: Use `sys_prompt.txt` content
+### Why API-First
 
-### Client Tools Setup
+- **Version control**: Agent configs in git, code review for prompt changes
+- **Reproducible**: Any developer can deploy from the same config
+- **Audit trail**: Git history + `.agents.json` tracks what's deployed
+- **Future-proof**: Enables CI/CD, staging environments, CMS integration
 
-In ElevenLabs dashboard, create 4 client tools:
+### Agent Configuration Location
 
-**1. change_scene**
-- Type: Client
-- Parameters: `scene_name` (string)
-- Wait for response: No
-- Description: "Call when transitioning to a new scene"
+```
+backend/agents/
+├── types.ts                  # TypeScript types
+└── three-little-pigs.ts      # Complete agent config (prompt, tools, voice)
+```
 
-**2. suggest_actions**
-- Type: Client
-- Parameters: `actions` (array of strings, max 3)
-- Wait for response: No
-- Description: "Provide 3 action suggestions for the child"
+### Deployment
 
-**3. generate_image**
-- Type: Client
-- Parameters: `prompt` (string)
-- Wait for response: No
-- Description: "Generate an image with the given prompt"
+```bash
+cd backend
+npm run agent:deploy three-little-pigs   # Create or update
+npm run agent:status                      # Show deployed agents
+```
 
-**4. session_end**
-- Type: Client
-- Parameters: `summary` (string)
-- Wait for response: No
-- Description: "End the session with a summary of the child's journey"
+### Client Tools
 
-### Workflow Setup (Optional Enhancement)
+4 client-side tools registered in both the agent config AND Flutter code:
 
-For better scene management, create a workflow agent with 5 subagent nodes:
-1. Each node has scene-specific system prompt
-2. Transitions use LLM conditions ("scene complete")
-3. Context preserved across nodes
+| Tool | Purpose | Parameters |
+|------|---------|------------|
+| `change_scene` | Scene transition | `scene_name: string` |
+| `suggest_actions` | Show action cards | `actions: string[]` |
+| `generate_image` | Generate illustration | `prompt: string` |
+| `session_end` | End with summary | `summary: string` |
 
-## Open Questions
+## Resolved Questions
 
-1. **Token endpoint**: Need to decide on backend (Firebase Functions, Cloudflare Workers, etc.)
-2. **Voice selection**: Need to test voices to find best Capy voice
-3. **Character voices**: How to handle voice switching for Wolf, Pigs, etc.?
-   - Option A: Single agent with inline voice switching instructions
-   - Option B: Multiple voice presets in ElevenLabs
-4. **Workflow vs Single Agent**: Start with single agent, migrate to workflow if needed
+| Question | Decision |
+|----------|----------|
+| Token endpoint | Cloudflare Workers (implemented in Phase 2) |
+| Voice selection | "Adam" voice (`pNInz6obpgDQGcFmaJgB`) - warm, friendly |
+| Character voices | Single agent with inline switching via prompt instructions |
+| Workflow vs Single Agent | Single agent for MVP, workflow optional later |
+| Dashboard vs API | API-first with TypeScript configs |
 
 ## References
 
