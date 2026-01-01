@@ -28,7 +28,7 @@ export interface AgentSettings {
 
 export interface PromptSettings {
   prompt: string;
-  llm: 'claude-3-5-sonnet' | 'gpt-4o' | 'gpt-4o-mini' | 'gemini-1.5-pro';
+  llm: 'claude-3-5-sonnet' | 'gpt-4o' | 'gpt-4o-mini' | 'gemini-1.5-pro' | 'gemini-2.5-flash' | 'glm-45-air-fp8';
   temperature?: number;
   max_tokens?: number;
   /**

@@ -93,7 +93,7 @@ export const config: AgentConfig = {
       language: 'en',
       prompt: {
         prompt: SYSTEM_PROMPT,
-        llm: 'claude-3-5-sonnet',
+        llm: 'glm-45-air-fp8',  // ElevenLabs-hosted, 1/3 cost, great tool-calling
         temperature: 0.7,
         max_tokens: 150,
         ignore_default_personality: true,  // Storili defines its own characters
