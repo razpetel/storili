@@ -90,8 +90,10 @@ export const config: AgentConfig = {
     tts: {
       voice_id: 'BRruTxiLM2nszrcCIpz1',  // Custom voice from voice library
       model_id: 'eleven_turbo_v2',        // Required for English agents
-      stability: 0.7,
-      similarity_boost: 0.8,
+      stability: 0.35,                    // Low = more expressive variation
+      similarity_boost: 0.6,              // Lower = more creative interpretation
+      style: 0.8,                         // Exaggerate emotional delivery
+      speed: 0.85,                        // 15% slower for clearer storytelling
     },
     turn: {
       turn_timeout: 15,              // Kids need time to think
