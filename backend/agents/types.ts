@@ -31,6 +31,11 @@ export interface PromptSettings {
   llm: 'claude-3-5-sonnet' | 'gpt-4o' | 'gpt-4o-mini' | 'gemini-1.5-pro';
   temperature?: number;
   max_tokens?: number;
+  /**
+   * Disable ElevenLabs' default "helpful assistant" personality.
+   * Always set to true for Storili - we define our own characters.
+   */
+  ignore_default_personality?: boolean;
 }
 
 export interface TTSSettings {

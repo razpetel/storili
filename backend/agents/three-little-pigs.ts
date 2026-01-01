@@ -96,6 +96,7 @@ export const config: AgentConfig = {
         llm: 'claude-3-5-sonnet',
         temperature: 0.7,
         max_tokens: 150,
+        ignore_default_personality: true,  // Storili defines its own characters
       },
     },
     tts: {
