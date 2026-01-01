@@ -88,10 +88,10 @@ export const config: AgentConfig = {
       },
     },
     tts: {
-      voice_id: 'BRruTxiLM2nszrcCIpz1',  // Custom voice from voice library
-      model_id: 'eleven_turbo_v2',        // Required for English agents
-      stability: 0.35,                    // Low = more expressive variation
-      similarity_boost: 0.6,              // Lower = more creative interpretation
+      voice_id: 'b8gbDO0ybjX1VA89pBdX',  // New expressive voice
+      model_id: 'eleven_turbo_v2',        // Fast for real-time
+      stability: 0.5,
+      similarity_boost: 0.65,
       style: 0.8,                         // Exaggerate emotional delivery
       speed: 0.85,                        // 15% slower for clearer storytelling
     },
