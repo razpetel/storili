@@ -100,7 +100,7 @@ export const config: AgentConfig = {
       },
     },
     tts: {
-      voice_id: 'BRruTxiLM2nszrcCIpz1',  // Goofy - nasal, energetic capybara voice
+      voice_id: 'jhgKhAfry5bhdFA52rHI',  // Custom Capy voice - goofy, enthusiastic capybara
       model_id: 'eleven_turbo_v2',        // Fast for real-time
       stability: 0.5,
       similarity_boost: 0.65,
