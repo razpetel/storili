@@ -47,16 +47,20 @@ export interface TurnSettings {
 
 export interface Workflow {
   nodes: Record<string, WorkflowNode>;
-  edges: Record<string, WorkflowEdge[]>;
+  edges: Record<string, WorkflowEdge>;
 }
 
 export interface WorkflowNode {
-  type: 'start' | 'agent' | 'end';
+  type: 'start' | 'end' | 'override_agent' | 'standalone_agent' | 'tool' | 'phone_number';
+  position: { x: number; y: number };
+  edge_order: string[];
 }
 
 export interface WorkflowEdge {
+  source: string;
   target: string;
-  condition?: string;
+  forward_condition?: { type: 'unconditional' } | { type: 'llm'; prompt: string };
+  backward_condition?: { type: 'unconditional' } | { type: 'llm'; prompt: string };
 }
 
 export interface ClientTool {

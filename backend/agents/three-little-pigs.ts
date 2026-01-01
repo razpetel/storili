@@ -89,7 +89,7 @@ export const config: AgentConfig = {
     },
     tts: {
       voice_id: 'pNInz6obpgDQGcFmaJgB',  // "Adam" - warm, friendly
-      model_id: 'eleven_turbo_v2_5',
+      model_id: 'eleven_turbo_v2',        // Required for English agents
       stability: 0.7,
       similarity_boost: 0.8,
     },
@@ -99,10 +99,14 @@ export const config: AgentConfig = {
     },
   },
 
-  // Required by ElevenLabs API
+  // Required by ElevenLabs API - minimal workflow with start node
   workflow: {
     nodes: {
-      start: { type: 'start' },
+      start_node: {
+        type: 'start',
+        position: { x: 0, y: 0 },
+        edge_order: [],
+      },
     },
     edges: {},
   },
