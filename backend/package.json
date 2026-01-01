@@ -5,10 +5,14 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "deploy:prod": "wrangler deploy --env production"
+    "deploy:prod": "wrangler deploy --env production",
+    "agent:deploy": "tsx scripts/deploy-agent.ts deploy",
+    "agent:status": "tsx scripts/deploy-agent.ts status",
+    "agent:delete": "tsx scripts/deploy-agent.ts delete"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241205.0",
+    "tsx": "^4.7.0",
     "typescript": "^5.0.0",
     "wrangler": "^3.0.0"
   }
