@@ -88,7 +88,7 @@ export const config: AgentConfig = {
       },
     },
     tts: {
-      voice_id: 'pNInz6obpgDQGcFmaJgB',  // "Adam" - warm, friendly
+      voice_id: 'BRruTxiLM2nszrcCIpz1',  // Custom voice from voice library
       model_id: 'eleven_turbo_v2',        // Required for English agents
       stability: 0.7,
       similarity_boost: 0.8,
