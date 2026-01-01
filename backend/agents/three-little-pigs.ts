@@ -98,10 +98,10 @@ export const config: AgentConfig = {
     tts: {
       voice_id: 'BRruTxiLM2nszrcCIpz1',  // Goofy - nasal, energetic capybara voice
       model_id: 'eleven_turbo_v2',        // Fast for real-time
-      stability: 0.5,
-      similarity_boost: 0.65,
-      style: 0.8,                         // Exaggerate emotional delivery
-      speed: 0.85,                        // 15% slower for clearer storytelling
+      stability: 0.3,                     // Lower = more expressive/enthusiastic
+      similarity_boost: 0.75,
+      style: 0.95,                        // Max out emotional delivery
+      speed: 0.95,                        // Slightly faster for energy
       supported_voices: [
         {
           label: 'Wolf',
