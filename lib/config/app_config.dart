@@ -3,7 +3,7 @@ class AppConfig {
 
   static const tokenEndpoint = String.fromEnvironment(
     'TOKEN_ENDPOINT',
-    defaultValue: 'https://storili-token-dev.workers.dev',
+    defaultValue: 'https://storili-token-dev.razpetel.workers.dev',
   );
 
   static const maxSessionDuration = Duration(minutes: 45);
