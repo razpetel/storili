@@ -42,13 +42,13 @@ class CloudflareTokenProvider implements TokenProvider {
         _timeout = timeout;
 
   @override
-  Future<String> getToken(String agentId) async {
+  Future<String> getToken(String storyId) async {
     try {
       final response = await _client
           .post(
             _baseUrl,
             headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'agent_id': agentId}),
+            body: jsonEncode({'story_id': storyId}),
           )
           .timeout(_timeout);
 
@@ -56,7 +56,7 @@ class CloudflareTokenProvider implements TokenProvider {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
         return data['token'] as String;
       } else if (response.statusCode == 400) {
-        throw TokenException('Invalid agent: $agentId', TokenErrorType.invalidAgent);
+        throw TokenException('Unknown story: $storyId', TokenErrorType.invalidAgent);
       } else if (response.statusCode == 429) {
         throw const TokenException('Rate limit exceeded', TokenErrorType.rateLimited);
       } else {

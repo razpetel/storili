@@ -1,6 +1,7 @@
 interface Env {
   ELEVENLABS_API_KEY: string;
-  ALLOWED_AGENTS: string;
+  // Agent IDs stored as secrets: AGENT_ID_THREE_LITTLE_PIGS, etc.
+  [key: string]: string;
 }
 
 const corsHeaders = {
@@ -25,29 +26,32 @@ export default {
     }
 
     try {
-      const body = await request.json() as { agent_id?: string };
-      const { agent_id } = body;
+      const body = await request.json() as { story_id?: string };
+      const { story_id } = body;
 
-      // Validate agent_id
-      if (!agent_id || typeof agent_id !== 'string') {
+      // Validate story_id
+      if (!story_id || typeof story_id !== 'string') {
         return new Response(
-          JSON.stringify({ error: 'Missing agent_id' }),
+          JSON.stringify({ error: 'Missing story_id' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
-      // Check allowlist
-      const allowedAgents = env.ALLOWED_AGENTS.split(',').map(s => s.trim());
-      if (!allowedAgents.includes(agent_id)) {
+      // Map story_id to agent_id via environment secret
+      // e.g., "three-little-pigs" -> env.AGENT_ID_THREE_LITTLE_PIGS
+      const secretKey = `AGENT_ID_${story_id.toUpperCase().replace(/-/g, '_')}`;
+      const agentId = env[secretKey];
+
+      if (!agentId) {
         return new Response(
-          JSON.stringify({ error: 'Invalid agent_id' }),
+          JSON.stringify({ error: 'Unknown story' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
       // Fetch signed URL from ElevenLabs
       const elevenLabsResponse = await fetch(
-        `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${agent_id}`,
+        `https://api.elevenlabs.io/v1/convai/conversation/get-signed-url?agent_id=${agentId}`,
         {
           headers: {
             'xi-api-key': env.ELEVENLABS_API_KEY,
