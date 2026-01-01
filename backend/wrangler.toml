@@ -1,0 +1,10 @@
+name = "storili-token-dev"
+main = "src/worker.ts"
+compatibility_date = "2024-12-01"
+
+[vars]
+ALLOWED_AGENTS = "three-little-pigs"
+
+# Production environment
+[env.production]
+name = "storili-token"
