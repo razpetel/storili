@@ -36,6 +36,7 @@ dependencies:
   http: ^1.2.0
   permission_handler: ^11.3.0
   mcp_toolkit: ^0.1.2
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
