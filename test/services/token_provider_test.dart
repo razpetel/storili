@@ -31,7 +31,7 @@ void main() {
         expect(request.headers['Content-Type'], 'application/json');
 
         final body = jsonDecode(request.body);
-        expect(body['agent_id'], 'three-little-pigs');
+        expect(body['story_id'], 'three-little-pigs');
 
         return http.Response(
           jsonEncode({'token': 'signed-url-token'}),
