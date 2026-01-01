@@ -150,7 +150,7 @@ class StoryNotifier extends StateNotifier<StoryState> {
     }
 
     try {
-      await _elevenLabs.startSession(agentId: state.storyId);
+      await _elevenLabs.startStory(storyId: state.storyId);
       state = state.copyWith(
         sessionStatus: StorySessionStatus.active,
         lastInteractionTime: DateTime.now(),

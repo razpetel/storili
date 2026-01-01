@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:storili/models/agent_event.dart';
@@ -353,7 +354,7 @@ class TrackingMockService extends MockElevenLabsService {
   }
 }
 
-class MockElevenLabsService implements ElevenLabsService {
+class MockElevenLabsService extends ChangeNotifier implements ElevenLabsService {
   final Stream<AgentEvent> _events;
 
   MockElevenLabsService(this._events);
@@ -371,7 +372,23 @@ class MockElevenLabsService implements ElevenLabsService {
   bool get isMuted => false;
 
   @override
-  Future<void> startSession({required String agentId, String? childName}) async {}
+  bool get isConnected => false;
+
+  @override
+  void initialize() {}
+
+  @override
+  Future<void> startStory({
+    required String storyId,
+    String? resumeSummary,
+    String? childName,
+  }) async {}
+
+  @override
+  Future<void> startWithPublicAgent({
+    required String agentId,
+    String? childName,
+  }) async {}
 
   @override
   Future<void> endSession() async {}
@@ -380,11 +397,12 @@ class MockElevenLabsService implements ElevenLabsService {
   void sendMessage(String text) {}
 
   @override
-  Future<bool> toggleMute() async => false;
+  void sendContextualUpdate(String context) {}
+
+  @override
+  Future<void> toggleMute() async {}
 
   @override
   Future<void> setMuted(bool muted) async {}
 
-  @override
-  void dispose() {}
 }

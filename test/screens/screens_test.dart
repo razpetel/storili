@@ -60,7 +60,7 @@ void main() {
   });
 }
 
-class _MockElevenLabsService implements ElevenLabsService {
+class _MockElevenLabsService extends ChangeNotifier implements ElevenLabsService {
   final Stream<AgentEvent> _events;
 
   _MockElevenLabsService(this._events);
@@ -78,7 +78,23 @@ class _MockElevenLabsService implements ElevenLabsService {
   bool get isMuted => false;
 
   @override
-  Future<void> startSession({required String agentId, String? childName}) async {}
+  bool get isConnected => false;
+
+  @override
+  void initialize() {}
+
+  @override
+  Future<void> startStory({
+    required String storyId,
+    String? resumeSummary,
+    String? childName,
+  }) async {}
+
+  @override
+  Future<void> startWithPublicAgent({
+    required String agentId,
+    String? childName,
+  }) async {}
 
   @override
   Future<void> endSession() async {}
@@ -87,11 +103,12 @@ class _MockElevenLabsService implements ElevenLabsService {
   void sendMessage(String text) {}
 
   @override
-  Future<bool> toggleMute() async => false;
+  void sendContextualUpdate(String context) {}
+
+  @override
+  Future<void> toggleMute() async {}
 
   @override
   Future<void> setMuted(bool muted) async {}
 
-  @override
-  void dispose() {}
 }

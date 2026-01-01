@@ -5,15 +5,20 @@ import 'package:flutter/foundation.dart';
 
 import '../models/agent_event.dart';
 import 'elevenlabs_tools.dart';
+import 'token_provider.dart';
 
 /// Service for managing ElevenLabs Conversational AI sessions.
 ///
 /// Wraps the ConversationClient and provides a stream-based interface
 /// for story playback.
 class ElevenLabsService extends ChangeNotifier {
+  final TokenProvider _tokenProvider;
   ConversationClient? _client;
   final StreamController<AgentEvent> _eventController =
       StreamController<AgentEvent>.broadcast();
+
+  ElevenLabsService({required TokenProvider tokenProvider})
+      : _tokenProvider = tokenProvider;
 
   /// Stream of events from the agent.
   Stream<AgentEvent> get events => _eventController.stream;
@@ -201,12 +206,7 @@ class ElevenLabsService extends ChangeNotifier {
 
   /// Get a conversation token from the backend.
   Future<String> _getConversationToken(String storyId) async {
-    // TODO: Implement actual backend call
-    // For now, throw unimplemented
-    throw UnimplementedError(
-      'Backend endpoint for conversation tokens not yet implemented. '
-      'Need to call POST /api/conversation-token with agent_id for story: $storyId',
-    );
+    return _tokenProvider.getToken(storyId);
   }
 
   /// Map SDK status to our enum.
