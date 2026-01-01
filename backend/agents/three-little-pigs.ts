@@ -96,7 +96,7 @@ export const config: AgentConfig = {
       },
     },
     tts: {
-      voice_id: 'b8gbDO0ybjX1VA89pBdX',  // Ruby Roo - default Capy voice
+      voice_id: 'BRruTxiLM2nszrcCIpz1',  // Goofy - nasal, energetic capybara voice
       model_id: 'eleven_turbo_v2',        // Fast for real-time
       stability: 0.5,
       similarity_boost: 0.65,
@@ -129,7 +129,7 @@ export const config: AgentConfig = {
         },
         {
           label: 'Pig3',
-          voice_id: 'BRruTxiLM2nszrcCIpz1',  // Goofy - steady
+          voice_id: 'nPczCjzI2devNBz1zQrb',  // Brian - deep, resonant, comforting
           description: 'Steady voice for the third pig who builds with bricks',
           model_family: 'turbo',
           stability: 0.6,  // More stable for the wise pig
