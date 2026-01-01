@@ -35,6 +35,7 @@ dependencies:
   elevenlabs_agents: ^0.3.0
   http: ^1.2.0
   permission_handler: ^11.3.0
+  mcp_toolkit: ^0.1.2
 
 dev_dependencies:
   flutter_test:
