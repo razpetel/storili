@@ -313,13 +313,70 @@ npm run agent:status                      # Show deployed agents
 | `generate_image` | Generate illustration | `prompt: string` |
 | `session_end` | End with summary | `summary: string` |
 
+## Multi-Voice Support
+
+ElevenLabs agents support **multi-voice** mode, allowing dynamic voice switching during conversations using XML tags.
+
+### Configuration Schema
+
+Add `supported_voices` array to TTS config:
+
+```typescript
+tts: {
+  voice_id: 'default-voice-id',  // Default/narrator voice
+  model_id: 'eleven_turbo_v2',
+  supported_voices: [
+    {
+      label: 'Wolf',              // XML tag name (case-sensitive)
+      voice_id: 'N2lVS1w4EtoT3dr4eOWO',
+      description: 'Deep, growly voice for the Big Bad Wolf',
+      model_family: 'turbo',      // turbo | flash | multilingual
+      stability: 0.4,             // Lower = more expressive
+      speed: 0.9,
+    },
+    // ... more voices
+  ],
+}
+```
+
+### Voice Tag Usage
+
+In the system prompt, instruct the agent to use XML tags:
+
+```
+The wolf growled, <Wolf>I'll huff and I'll puff!</Wolf> But the pig just laughed.
+```
+
+- Text inside `<Label>...</Label>` uses that voice
+- Untagged text uses the default voice
+- Undefined labels fall back to default (tags ignored)
+- Keep tagged sections short (1-2 sentences) for natural switching
+
+### Three Little Pigs Character Voices
+
+| Character | Label | Voice | Voice ID | Notes |
+|-----------|-------|-------|----------|-------|
+| Capy (default) | - | Ruby Roo | b8gbDO0ybjX1VA89pBdX | Warm narrator |
+| Wolf | `<Wolf>` | Callum | N2lVS1w4EtoT3dr4eOWO | Husky, lower stability |
+| Pig 1 | `<Pig1>` | Little Dude | 097ltElSSDjiaxWTCFaX | Squeaky (straw house) |
+| Pig 2 | `<Pig2>` | Nelson | EaX6rnyDKjJx35tchi80 | Medium (stick house) |
+| Pig 3 | `<Pig3>` | Goofy | BRruTxiLM2nszrcCIpz1 | Steady (brick house) |
+| Mother Pig | `<MotherPig>` | Jessica | cgSgspJ2msm6clMCkdW9 | Warm, gentle |
+
+### Best Practices
+
+- **Max 10 voices** per agent
+- **Voice labels are case-sensitive** - `<Wolf>` ≠ `<wolf>`
+- **First use has slight latency** as voice initializes
+- **Same voice, different configs** - can have multiple labels pointing to same voice_id with different settings
+
 ## Resolved Questions
 
 | Question | Decision |
 |----------|----------|
 | Token endpoint | Cloudflare Workers using `/v1/convai/conversation/token` (NOT `/get-signed-url`) |
-| Voice selection | Voice `b8gbDO0ybjX1VA89pBdX` with tuned TTS settings |
-| Character voices | Single agent with inline switching via prompt instructions |
+| Voice selection | Voice `b8gbDO0ybjX1VA89pBdX` (Ruby Roo) as default Capy voice |
+| Character voices | **Multi-voice via `supported_voices`** with XML tags in agent output |
 | Workflow vs Single Agent | Single agent for MVP, workflow optional later |
 | Dashboard vs API | API-first with TypeScript configs |
 | Connection type | WebRTC via LiveKit (Flutter SDK default) |
@@ -351,12 +408,15 @@ npm run agent:status                      # Show deployed agents
 
 ```typescript
 tts: {
-  voice_id: 'b8gbDO0ybjX1VA89pBdX',
+  voice_id: 'b8gbDO0ybjX1VA89pBdX',  // Ruby Roo - default Capy voice
   model_id: 'eleven_turbo_v2',
   stability: 0.5,
   similarity_boost: 0.65,
   style: 0.8,
   speed: 0.85,
+  supported_voices: [
+    // Wolf, Pig1, Pig2, Pig3, MotherPig - see Multi-Voice Support section
+  ],
 }
 ```
 
@@ -365,5 +425,7 @@ tts: {
 - [ElevenLabs Agents Overview](https://elevenlabs.io/docs/agents-platform/overview)
 - [Agent Workflows](https://elevenlabs.io/docs/agents-platform/customization/agent-workflows)
 - [Client Tools](https://elevenlabs.io/docs/agents-platform/customization/tools/client-tools)
+- [Multi-Voice Support](https://elevenlabs.io/docs/agents-platform/customization/voice/multi-voice-support)
 - [Flutter SDK](https://pub.dev/packages/elevenlabs_agents)
 - [Prompting Guide](https://elevenlabs.io/docs/agents-platform/best-practices/prompting-guide)
+- [Update Agent API](https://elevenlabs.io/docs/api-reference/agents/update)
