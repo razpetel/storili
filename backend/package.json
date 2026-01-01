@@ -1,7 +1,11 @@
 {
   "name": "storili-token-worker",
   "version": "1.0.0",
+  "description": "Cloudflare Worker for Storili token endpoint and agent management",
   "private": true,
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
@@ -13,7 +17,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241205.0",
     "tsx": "^4.7.0",
-    "typescript": "^5.0.0",
+    "typescript": "^5.6.0",
     "wrangler": "^3.0.0"
   }
 }
