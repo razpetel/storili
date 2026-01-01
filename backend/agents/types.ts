@@ -40,6 +40,32 @@ export interface TTSSettings {
   similarity_boost?: number;
   style?: number;
   speed?: number;
+  supported_voices?: SupportedVoice[];
+}
+
+/**
+ * Configuration for a supported voice in multi-voice mode.
+ * See: https://elevenlabs.io/docs/agents-platform/customization/voice/multi-voice-support
+ */
+export interface SupportedVoice {
+  /** The voice label used in XML tags, e.g., <Wolf>text</Wolf> */
+  label: string;
+  /** ElevenLabs voice ID */
+  voice_id: string;
+  /** Context for when the agent should use this voice */
+  description?: string;
+  /** Language override for this voice */
+  language?: string;
+  /** Model family: turbo, flash, or multilingual */
+  model_family?: 'turbo' | 'flash' | 'multilingual';
+  /** Streaming latency optimization: 0-4 */
+  optimize_streaming_latency?: 0 | 1 | 2 | 3 | 4;
+  /** Voice stability: 0-1 */
+  stability?: number;
+  /** Speech speed multiplier */
+  speed?: number;
+  /** Voice similarity boost: 0-1 */
+  similarity_boost?: number;
 }
 
 export interface TurnSettings {

@@ -66,11 +66,19 @@ Happy ending!
 - Never break character or mention being AI
 - If child is scared, reassure: "Don't worry, the pigs are safe!"
 
-## Voice Notes
-- You are the narrator AND all characters
-- Wolf: deeper, growly but silly (not scary)
-- Pigs: higher pitched, each slightly different
-- Always return to warm Capy voice for narration
+## Voice Switching
+You have multiple character voices available. Use XML tags to switch voices:
+- <Wolf>...</Wolf> - Deep, growly but silly voice for the Big Bad Wolf
+- <Pig1>...</Pig1> - Squeaky voice for the first pig (straw house)
+- <Pig2>...</Pig2> - Medium voice for the second pig (stick house)
+- <Pig3>...</Pig3> - Steady voice for the third pig (brick house)
+- <MotherPig>...</MotherPig> - Warm, gentle voice for Mother Pig
+
+Untagged text uses your default Capy voice for narration.
+
+Example: "The wolf growled, <Wolf>I'll huff and I'll puff!</Wolf> But the little pig just laughed."
+
+IMPORTANT: Keep character dialogue short (1-2 sentences) for natural voice switching.
 `;
 
 export const config: AgentConfig = {
@@ -88,12 +96,54 @@ export const config: AgentConfig = {
       },
     },
     tts: {
-      voice_id: 'b8gbDO0ybjX1VA89pBdX',  // New expressive voice
+      voice_id: 'b8gbDO0ybjX1VA89pBdX',  // Ruby Roo - default Capy voice
       model_id: 'eleven_turbo_v2',        // Fast for real-time
       stability: 0.5,
       similarity_boost: 0.65,
       style: 0.8,                         // Exaggerate emotional delivery
       speed: 0.85,                        // 15% slower for clearer storytelling
+      supported_voices: [
+        {
+          label: 'Wolf',
+          voice_id: 'N2lVS1w4EtoT3dr4eOWO',  // Callum - husky trickster
+          description: 'Deep, growly but silly voice for the Big Bad Wolf',
+          model_family: 'turbo',
+          stability: 0.4,  // More expressive for the wolf
+          speed: 0.9,
+        },
+        {
+          label: 'Pig1',
+          voice_id: '097ltElSSDjiaxWTCFaX',  // Little Dude - squeaky
+          description: 'Squeaky voice for the first pig who builds with straw',
+          model_family: 'turbo',
+          stability: 0.5,
+          speed: 1.0,
+        },
+        {
+          label: 'Pig2',
+          voice_id: 'EaX6rnyDKjJx35tchi80',  // Nelson - medium
+          description: 'Medium voice for the second pig who builds with sticks',
+          model_family: 'turbo',
+          stability: 0.5,
+          speed: 0.95,
+        },
+        {
+          label: 'Pig3',
+          voice_id: 'BRruTxiLM2nszrcCIpz1',  // Goofy - steady
+          description: 'Steady voice for the third pig who builds with bricks',
+          model_family: 'turbo',
+          stability: 0.6,  // More stable for the wise pig
+          speed: 0.9,
+        },
+        {
+          label: 'MotherPig',
+          voice_id: 'cgSgspJ2msm6clMCkdW9',  // Jessica - warm
+          description: 'Warm, gentle voice for Mother Pig',
+          model_family: 'turbo',
+          stability: 0.7,
+          speed: 0.85,
+        },
+      ],
     },
     turn: {
       turn_timeout: 15,              // Kids need time to think
