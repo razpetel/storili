@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:storili/models/agent_event.dart';
+import 'package:storili/providers/services.dart';
 import 'package:storili/providers/story_provider.dart';
 import 'package:storili/services/elevenlabs_service.dart';
 import 'package:storili/services/permission_service.dart';
@@ -309,6 +311,33 @@ void main() {
 
       expect(notifier.state.lastInteractionTime, isNotNull);
       notifier.dispose();
+    });
+  });
+
+  group('storyProvider', () {
+    test('creates StoryNotifier for given storyId', () {
+      final eventController = StreamController<AgentEvent>.broadcast();
+
+      final container = ProviderContainer(
+        overrides: [
+          elevenLabsServiceProvider.overrideWithValue(
+            MockElevenLabsService(eventController.stream),
+          ),
+          permissionServiceProvider.overrideWithValue(
+            MockPermissionService(
+              checkResult: MicPermissionStatus.granted,
+              requestResult: MicPermissionStatus.granted,
+            ),
+          ),
+        ],
+      );
+
+      final state = container.read(storyProvider('three-little-pigs'));
+      expect(state.storyId, 'three-little-pigs');
+      expect(state.sessionStatus, StorySessionStatus.idle);
+
+      container.dispose();
+      eventController.close();
     });
   });
 }

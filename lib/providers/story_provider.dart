@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/agent_event.dart';
 import '../services/elevenlabs_service.dart';
 import '../services/permission_service.dart';
+import 'services.dart';
 
 /// Session status for story playback.
 enum StorySessionStatus {
@@ -189,3 +190,16 @@ class StoryNotifier extends StateNotifier<StoryState> {
     super.dispose();
   }
 }
+
+/// Provider for story state, parameterized by story ID.
+final storyProvider = StateNotifierProvider.family<StoryNotifier, StoryState, String>(
+  (ref, storyId) {
+    final elevenLabs = ref.watch(elevenLabsServiceProvider);
+    final permission = ref.watch(permissionServiceProvider);
+    return StoryNotifier(
+      storyId: storyId,
+      elevenLabs: elevenLabs,
+      permission: permission,
+    );
+  },
+);
