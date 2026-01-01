@@ -122,6 +122,67 @@ class StoryNotifier extends StateNotifier<StoryState> {
     }
   }
 
+  /// Start the story session.
+  Future<void> startStory() async {
+    // Guard: only start from idle
+    if (state.sessionStatus != StorySessionStatus.idle) {
+      return;
+    }
+
+    state = state.copyWith(
+      sessionStatus: StorySessionStatus.loading,
+      clearError: true,
+    );
+
+    // Check permission
+    final permStatus = await _permission.checkMicrophone();
+    if (permStatus != MicPermissionStatus.granted) {
+      // Try requesting
+      final requestStatus = await _permission.requestMicrophone();
+      if (requestStatus != MicPermissionStatus.granted) {
+        state = state.copyWith(
+          sessionStatus: StorySessionStatus.error,
+          error: 'Microphone permission required. Please enable in Settings.',
+        );
+        return;
+      }
+    }
+
+    try {
+      await _elevenLabs.startSession(agentId: state.storyId);
+      state = state.copyWith(
+        sessionStatus: StorySessionStatus.active,
+        lastInteractionTime: DateTime.now(),
+      );
+    } catch (e) {
+      state = state.copyWith(
+        sessionStatus: StorySessionStatus.error,
+        error: e.toString(),
+      );
+    }
+  }
+
+  /// End the story session.
+  Future<void> endStory() async {
+    state = state.copyWith(sessionStatus: StorySessionStatus.ending);
+    await _elevenLabs.endSession();
+  }
+
+  /// Called when child taps an action card.
+  void selectAction(String action) {
+    _elevenLabs.sendMessage(action);
+    state = state.copyWith(
+      suggestedActions: [],
+      lastInteractionTime: DateTime.now(),
+    );
+  }
+
+  /// Called when parent types custom message.
+  void sendCustomMessage(String message) {
+    _elevenLabs.sendMessage(message);
+    state = state.copyWith(lastInteractionTime: DateTime.now());
+  }
+
   @override
   void dispose() {
     _eventSubscription?.cancel();

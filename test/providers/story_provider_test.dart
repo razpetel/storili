@@ -205,7 +205,123 @@ void main() {
       expect(notifier.state.error, contains('context'));
       notifier.dispose();
     });
+
+    test('startStory checks permission first', () async {
+      final mockPermission = MockPermissionService(
+        checkResult: MicPermissionStatus.denied,
+        requestResult: MicPermissionStatus.denied,
+      );
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: mockService,
+        permission: mockPermission,
+      );
+
+      await notifier.startStory();
+
+      expect(notifier.state.sessionStatus, StorySessionStatus.error);
+      expect(notifier.state.error!.toLowerCase(), contains('microphone'));
+      notifier.dispose();
+    });
+
+    test('startStory transitions to loading then active', () async {
+      var statusLog = <StorySessionStatus>[];
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: mockService,
+        permission: mockPermission,
+      );
+
+      notifier.addListener((state) {
+        statusLog.add(state.sessionStatus);
+      });
+
+      await notifier.startStory();
+
+      expect(statusLog, contains(StorySessionStatus.loading));
+      notifier.dispose();
+    });
+
+    test('startStory ignores if not idle', () async {
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: mockService,
+        permission: mockPermission,
+      );
+
+      // Start first story
+      await notifier.startStory();
+      final firstStatus = notifier.state.sessionStatus;
+
+      // Try to start again - should be ignored
+      await notifier.startStory();
+
+      expect(notifier.state.sessionStatus, firstStatus);
+      notifier.dispose();
+    });
+
+    test('endStory calls service and updates state', () async {
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: mockService,
+        permission: mockPermission,
+      );
+
+      await notifier.startStory();
+      await notifier.endStory();
+
+      expect(notifier.state.sessionStatus, StorySessionStatus.ending);
+      notifier.dispose();
+    });
+
+    test('selectAction sends message and clears actions', () async {
+      final messages = <String>[];
+      final trackingService = TrackingMockService(eventController.stream, messages);
+
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: trackingService,
+        permission: mockPermission,
+      );
+
+      // Add some actions
+      eventController.add(const SuggestedActions(['Run', 'Hide']));
+      await Future.delayed(const Duration(milliseconds: 10));
+
+      // Select one
+      notifier.selectAction('Run');
+
+      expect(messages, ['Run']);
+      expect(notifier.state.suggestedActions, isEmpty);
+      notifier.dispose();
+    });
+
+    test('selectAction updates lastInteractionTime', () async {
+      final notifier = StoryNotifier(
+        storyId: 'test',
+        elevenLabs: mockService,
+        permission: mockPermission,
+      );
+
+      expect(notifier.state.lastInteractionTime, isNull);
+
+      notifier.selectAction('Test');
+
+      expect(notifier.state.lastInteractionTime, isNotNull);
+      notifier.dispose();
+    });
   });
+}
+
+class TrackingMockService extends MockElevenLabsService {
+  final List<String> messages;
+
+  TrackingMockService(super.events, this.messages);
+
+  @override
+  void sendMessage(String text) {
+    messages.add(text);
+  }
 }
 
 class MockElevenLabsService implements ElevenLabsService {
