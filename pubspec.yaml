@@ -38,6 +38,8 @@ dependencies:
   mcp_toolkit: ^0.1.2
   google_fonts: ^6.2.1
   flutter_dotenv: ^5.1.0
+  confetti: ^0.7.0
+  just_audio: ^0.9.36
 
 dev_dependencies:
   flutter_test:
@@ -58,6 +60,8 @@ flutter:
   assets:
     - .env
     - assets/stories/
+    - assets/audio/
+    - assets/images/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
