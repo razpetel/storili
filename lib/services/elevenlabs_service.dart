@@ -62,7 +62,7 @@ class ElevenLabsService extends ChangeNotifier {
         }
       },
       onDisconnect: (details) {
-        debugPrint('ElevenLabs disconnected');
+        debugPrint('ElevenLabs disconnected: ${details?.reason}');
         if (!_eventController.isClosed) {
           _eventController.add(
             const ConnectionStatusChanged(

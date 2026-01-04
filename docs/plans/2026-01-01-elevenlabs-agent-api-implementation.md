@@ -862,3 +862,55 @@ After the implementation is complete, to actually deploy an agent:
 
 **Total new files:** 5
 **Total lines:** ~450
+
+---
+
+## CRITICAL CORRECTION (2026-01-05)
+
+The original implementation placed client tools at the WRONG location. See `docs/research/2026-01-05-elevenlabs-client-tools-fix.md` for full details.
+
+### Summary of Changes
+
+**Wrong (original plan):**
+```typescript
+export const config: AgentConfig = {
+  name: '...',
+  conversation_config: { ... },
+  client_tools: [ ... ],  // WRONG - top level
+};
+```
+
+**Correct:**
+```typescript
+export const config: AgentConfig = {
+  name: '...',
+  conversation_config: {
+    agent: {
+      prompt: {
+        prompt: '...',
+        llm: 'gpt-4o-mini',  // NOT glm-45-air-fp8
+        tools: [  // CORRECT - inside prompt
+          {
+            type: 'client',  // REQUIRED
+            name: 'change_scene',
+            parameters: {
+              type: 'object',  // JSON Schema format
+              properties: { ... },
+              required: [ ... ],
+            },
+            expects_response: false,
+          },
+        ],
+      },
+    },
+  },
+};
+```
+
+### Key Corrections
+
+1. **Location:** `client_tools` → `conversation_config.agent.prompt.tools`
+2. **Type field:** Each tool needs `type: "client"`
+3. **Parameters format:** Use JSON Schema (`type: "object"`, `properties`, `required`)
+4. **Array items:** Must include `description` field
+5. **LLM model:** Use `gpt-4o-mini` instead of experimental models

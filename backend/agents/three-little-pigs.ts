@@ -93,10 +93,77 @@ export const config: AgentConfig = {
       language: 'en',
       prompt: {
         prompt: SYSTEM_PROMPT,
-        llm: 'glm-45-air-fp8',  // ElevenLabs-hosted, 1/3 cost, great tool-calling
+        llm: 'gpt-4o-mini',  // Reliable tool-calling
         temperature: 0.7,
         max_tokens: 150,
         ignore_default_personality: true,  // Storili defines its own characters
+        tools: [
+          {
+            type: 'client',
+            name: 'change_scene',
+            description: 'Transition to a new scene. Call when moving between story locations.',
+            parameters: {
+              type: 'object',
+              properties: {
+                scene_name: {
+                  type: 'string',
+                  description: 'Scene identifier: cottage, straw_house, stick_house, brick_house, celebration',
+                },
+              },
+              required: ['scene_name'],
+            },
+            expects_response: false,
+          },
+          {
+            type: 'client',
+            name: 'suggest_actions',
+            description: 'Offer 3 action choices after asking a question. Always provide exactly 3 options.',
+            parameters: {
+              type: 'object',
+              properties: {
+                actions: {
+                  type: 'array',
+                  items: { type: 'string', description: 'A short action phrase' },
+                  description: 'Exactly 3 short action phrases with emoji prefix',
+                },
+              },
+              required: ['actions'],
+            },
+            expects_response: false,
+          },
+          {
+            type: 'client',
+            name: 'generate_image',
+            description: 'Generate illustration for current scene. Call after change_scene.',
+            parameters: {
+              type: 'object',
+              properties: {
+                prompt: {
+                  type: 'string',
+                  description: 'Detailed image prompt including scene, characters, and current action',
+                },
+              },
+              required: ['prompt'],
+            },
+            expects_response: false,
+          },
+          {
+            type: 'client',
+            name: 'session_end',
+            description: 'End the story session. Call when story concludes or child says goodbye.',
+            parameters: {
+              type: 'object',
+              properties: {
+                summary: {
+                  type: 'string',
+                  description: "Personalized summary of child's journey for resume context",
+                },
+              },
+              required: ['summary'],
+            },
+            expects_response: false,
+          },
+        ],
       },
     },
     tts: {
@@ -167,56 +234,4 @@ export const config: AgentConfig = {
     edges: {},
   },
 
-  // Client tools executed on device
-  client_tools: [
-    {
-      name: 'change_scene',
-      description: 'Transition to a new scene. Call when moving between story locations.',
-      parameters: {
-        scene_name: {
-          type: 'string',
-          description: 'Scene identifier: cottage, straw_house, stick_house, brick_house, celebration',
-          required: true,
-        },
-      },
-      wait_for_response: false,
-    },
-    {
-      name: 'suggest_actions',
-      description: 'Offer 3 action choices after asking a question. Always provide exactly 3 options.',
-      parameters: {
-        actions: {
-          type: 'array',
-          items: { type: 'string' },
-          description: 'Exactly 3 short action phrases with emoji prefix',
-          required: true,
-        },
-      },
-      wait_for_response: false,
-    },
-    {
-      name: 'generate_image',
-      description: 'Generate illustration for current scene. Call after change_scene.',
-      parameters: {
-        prompt: {
-          type: 'string',
-          description: 'Detailed image prompt including scene, characters, and current action',
-          required: true,
-        },
-      },
-      wait_for_response: false,
-    },
-    {
-      name: 'session_end',
-      description: 'End the story session. Call when story concludes or child says goodbye.',
-      parameters: {
-        summary: {
-          type: 'string',
-          description: "Personalized summary of child's journey for resume context",
-          required: true,
-        },
-      },
-      wait_for_response: false,
-    },
-  ],
 };

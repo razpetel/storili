@@ -47,14 +47,23 @@ class _SceneImageState extends State<SceneImage>
   void didUpdateWidget(SceneImage oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.imageBytes != oldWidget.imageBytes) {
-      if (widget.imageBytes != null) {
-        _controller.forward(from: 0);
-        _controller.repeat(reverse: true);
-      } else {
-        _controller.stop();
-        _controller.reset();
-      }
+    final hadImage = oldWidget.imageBytes != null;
+    final hasImage = widget.imageBytes != null;
+
+    if (hasImage && !hadImage) {
+      // First image arrived
+      _controller.stop();
+      _controller.reset();
+      _controller.repeat(reverse: true);
+    } else if (hasImage && hadImage && widget.imageBytes != oldWidget.imageBytes) {
+      // Different image - restart animation
+      _controller.stop();
+      _controller.reset();
+      _controller.repeat(reverse: true);
+    } else if (!hasImage && hadImage) {
+      // Image removed
+      _controller.stop();
+      _controller.reset();
     }
   }
 
@@ -66,6 +75,11 @@ class _SceneImageState extends State<SceneImage>
 
   @override
   Widget build(BuildContext context) {
+    // Ensure animation is running whenever we have an image
+    if (widget.imageBytes != null && !_controller.isAnimating) {
+      _controller.repeat(reverse: true);
+    }
+
     return AspectRatio(
       aspectRatio: 1.0,
       child: ClipRRect(

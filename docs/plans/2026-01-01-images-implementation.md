@@ -1242,3 +1242,68 @@ git commit -m "feat: complete Phase 5 - Images implementation"
 | 7 | Create SceneImage widget |
 | 8 | Integrate into StoryScreen |
 | 9 | End-to-end test |
+
+---
+
+## Post-Implementation Fix: Ken Burns Animation (2026-01-05)
+
+### Issue
+
+The Ken Burns animation was only running for the first image. Subsequent images displayed correctly but without the subtle zoom animation.
+
+### Root Cause
+
+The original `didUpdateWidget` logic didn't reliably detect all image change scenarios, especially when the app was restarted or when widget rebuilds occurred without proper state transitions.
+
+### Solution
+
+Added a fallback check in `build()` to ensure animation is always running when an image is present:
+
+```dart
+@override
+Widget build(BuildContext context) {
+  // Ensure animation is running whenever we have an image
+  if (widget.imageBytes != null && !_controller.isAnimating) {
+    _controller.repeat(reverse: true);
+  }
+
+  return AspectRatio(
+    // ...
+  );
+}
+```
+
+Also improved `didUpdateWidget` to properly handle all transitions:
+
+```dart
+@override
+void didUpdateWidget(SceneImage oldWidget) {
+  super.didUpdateWidget(oldWidget);
+
+  final hadImage = oldWidget.imageBytes != null;
+  final hasImage = widget.imageBytes != null;
+
+  if (hasImage && !hadImage) {
+    // First image arrived
+    _controller.stop();
+    _controller.reset();
+    _controller.repeat(reverse: true);
+  } else if (hasImage && hadImage && widget.imageBytes != oldWidget.imageBytes) {
+    // Different image - restart animation
+    _controller.stop();
+    _controller.reset();
+    _controller.repeat(reverse: true);
+  } else if (!hasImage && hadImage) {
+    // Image removed
+    _controller.stop();
+    _controller.reset();
+  }
+}
+```
+
+### Key Insight
+
+The `build()` fallback is important because:
+1. `initState` only runs once when widget is created
+2. `didUpdateWidget` might not catch all rebuild scenarios
+3. Checking `!_controller.isAnimating` ensures we don't restart unnecessarily

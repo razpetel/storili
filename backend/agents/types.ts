@@ -11,7 +11,6 @@ export interface AgentConfig {
   name: string;
   conversation_config: ConversationConfig;
   workflow: Workflow;
-  client_tools?: ClientTool[];
 }
 
 export interface ConversationConfig {
@@ -36,6 +35,26 @@ export interface PromptSettings {
    * Always set to true for Storili - we define our own characters.
    */
   ignore_default_personality?: boolean;
+  /**
+   * Client tools that can be invoked by the agent.
+   */
+  tools?: ClientToolConfig[];
+}
+
+export interface ClientToolConfig {
+  type: 'client';
+  name: string;
+  description: string;
+  parameters?: {
+    type: 'object';
+    properties: Record<string, {
+      type: string;
+      description?: string;
+      items?: { type: string; description: string };
+    }>;
+    required?: string[];
+  };
+  expects_response?: boolean;
 }
 
 export interface TTSSettings {
@@ -96,19 +115,6 @@ export interface WorkflowEdge {
   backward_condition?: { type: 'unconditional' } | { type: 'llm'; prompt: string };
 }
 
-export interface ClientTool {
-  name: string;
-  description: string;
-  parameters: Record<string, ToolParameter>;
-  wait_for_response: boolean;
-}
-
-export interface ToolParameter {
-  type: 'string' | 'number' | 'boolean' | 'array';
-  items?: { type: string };
-  description: string;
-  required: boolean;
-}
 
 /**
  * Registry entry for tracking deployed agents

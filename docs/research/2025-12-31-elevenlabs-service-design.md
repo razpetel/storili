@@ -682,3 +682,11 @@ void main() {
    - Write unit tests for tools
    - Write integration tests with mocked SDK
    - Test on physical devices (iOS + Android)
+
+---
+
+## Important Update (2026-01-05)
+
+**Client tools via API:** When deploying agents via the ElevenLabs API (not dashboard), client tools must be placed in `conversation_config.agent.prompt.tools[]` with `type: "client"`. See `docs/research/2026-01-05-elevenlabs-client-tools-fix.md` for the correct JSON schema format.
+
+**LLM recommendation:** Use `gpt-4o-mini` for reliable tool calling. The `glm-45-air-fp8` model caused immediate disconnects.
