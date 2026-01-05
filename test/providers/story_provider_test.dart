@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -511,6 +510,10 @@ class MockElevenLabsService extends ChangeNotifier implements ElevenLabsService 
   @override
   Future<void> setMuted(bool muted) async {}
 
+  @override
+  Future<Uint8List> textToSpeech(String text) async {
+    return Uint8List.fromList([]);
+  }
 }
 
 class MockImageService implements ImageService {

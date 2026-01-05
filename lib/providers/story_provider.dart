@@ -144,14 +144,16 @@ class StoryNotifier extends StateNotifier<StoryState> {
   }
 
   Future<void> _generateImage(String prompt) async {
-    if (_imageService == null || _imageCache == null) return;
+    final imageService = _imageService;
+    final imageCache = _imageCache;
+    if (imageService == null || imageCache == null) return;
 
     state = state.copyWith(isImageLoading: true);
 
     try {
-      final bytes = await _imageService!.generate(prompt);
+      final bytes = await imageService.generate(prompt);
       final index = state.imageCount;
-      _imageCache!.store(index, bytes);
+      imageCache.store(index, bytes);
 
       state = state.copyWith(
         isImageLoading: false,

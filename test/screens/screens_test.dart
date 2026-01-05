@@ -58,9 +58,18 @@ void main() {
 
     testWidgets('CelebrationScreen renders with storyId', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(home: CelebrationScreen(storyId: 'test-story')),
+        ProviderScope(
+          overrides: [
+            imageCacheProvider.overrideWithValue(image_cache.ImageCache()),
+          ],
+          child: const MaterialApp(home: CelebrationScreen(storyId: 'test-story', summary: 'A great adventure')),
+        ),
       );
-      expect(find.text('Congratulations'), findsOneWidget);
+      await tester.pump();
+      expect(find.text('You did it!'), findsOneWidget);
+
+      // Complete the jingle timer (2 seconds) before disposing
+      await tester.pump(const Duration(seconds: 3));
     });
   });
 }
@@ -116,6 +125,10 @@ class _MockElevenLabsService extends ChangeNotifier implements ElevenLabsService
   @override
   Future<void> setMuted(bool muted) async {}
 
+  @override
+  Future<Uint8List> textToSpeech(String text) async {
+    return Uint8List.fromList([]);
+  }
 }
 
 class _MockImageService implements ImageService {
