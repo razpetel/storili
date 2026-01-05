@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -18,6 +20,33 @@ class SettingsScreen extends StatelessWidget {
               // TODO: Show confirmation dialog
             },
           ),
+          // Debug section (only in debug builds)
+          if (kDebugMode) ...[
+            const Divider(),
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'Debug',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey,
+                ),
+              ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.celebration, color: Colors.orange),
+              title: const Text('Test Celebration'),
+              subtitle: const Text('5 test images, real TTS'),
+              onTap: () => context.go('/debug/celebration'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.celebration_outlined, color: Colors.grey),
+              title: const Text('Test Celebration (Mock)'),
+              subtitle: const Text('5 test images, silent fallback'),
+              onTap: () => context.go('/debug/celebration?mock=true'),
+            ),
+          ],
         ],
       ),
     );
