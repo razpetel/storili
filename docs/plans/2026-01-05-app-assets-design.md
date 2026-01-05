@@ -1,8 +1,11 @@
 # App Assets Design
 
 **Date:** 2026-01-05
-**Status:** Ready for Implementation
+**Status:** ✅ Implemented
 **Phase:** Cross-cutting (supports Phases 4, 6, 7)
+**Branch:** `feature/app-assets`
+
+> **Implementation Note:** The original design specified a "sock on tail" accessory for Capy. After extensive testing with DALL-E 3, this was simplified to "duck on head only" due to AI limitations with tail accessories. See [DALL-E 3 Learnings](#dall-e-3-learnings) section below.
 
 ## Overview
 
@@ -35,14 +38,15 @@ Body:           Rounded, chunky proportions (claymorphism-compatible)
 Art Style:      Classic storybook watercolor, hand-painted brushstrokes
 ```
 
-### Signature Accessories
+### Signature Accessory
 
 Always present in every illustration:
 
 | Accessory | Colors | Position | Details |
 |-----------|--------|----------|---------|
-| Rubber Duck | Body: #FFD93D, Beak: #FF8C42, Eye: #1A1A1A | Centered on head, 10° left tilt | Classic bath duck shape |
-| Striped Sock | Stripes: #FF6B6B, #FFD93D, #4ECDC4, #9B59B6 (repeat) | Covering ~30% of tail tip | Horizontal stripes, slightly bunched |
+| Rubber Duck | Body: #FFD93D, Beak: #FF8C42, Eye: #1A1A1A | Centered on top of head | Classic bath duck shape, sitting like a tiny hat |
+
+> **Design Evolution:** Original spec included a striped sock on tail. Removed after DALL-E 3 testing showed consistent failure to place accessories on tails (see [DALL-E 3 Learnings](#dall-e-3-learnings)).
 
 ### Size Specifications
 
@@ -64,8 +68,7 @@ Background:      Transparent (UI provides #FDF8F3)
 | Emotion | Warm, inviting |
 | Body | Sitting upright, one paw raised in small wave |
 | Face | Soft smile, eyes open and friendly |
-| Duck | Upright, looking forward |
-| Sock | Relaxed |
+| Duck | Sitting on head, looking forward |
 | Mood | "Hello, friend!" |
 
 #### 2. Celebrate (`capy_celebrate.png`)
@@ -75,8 +78,7 @@ Background:      Transparent (UI provides #FDF8F3)
 | Emotion | Joyful, excited |
 | Body | Standing on hind legs, both paws up |
 | Face | Big smile, eyes squeezed happy |
-| Duck | Tilted back (excitement) |
-| Sock | Bouncy/dynamic |
+| Duck | On head, tilted back with excitement |
 | Mood | "You did it!" |
 
 #### 3. Wave (`capy_wave.png`)
@@ -86,8 +88,7 @@ Background:      Transparent (UI provides #FDF8F3)
 | Emotion | Gentle, reassuring |
 | Body | Sitting, one paw extended waving |
 | Face | Calm smile, understanding eyes |
-| Duck | Slight tilt toward viewer |
-| Sock | Relaxed |
+| Duck | On head, slight tilt toward viewer |
 | Mood | "See you soon!" |
 
 #### 4. Sleep (`capy_sleep.png`)
@@ -97,8 +98,7 @@ Background:      Transparent (UI provides #FDF8F3)
 | Emotion | Peaceful, cozy |
 | Body | Curled up, paws tucked |
 | Face | Eyes closed, serene smile |
-| Duck | Nestled down with Capy |
-| Sock | Curled around tail |
+| Duck | Nestled on head, also appearing sleepy |
 | Mood | "Rest time" |
 
 ## DALL-E Prompt Templates
@@ -106,60 +106,52 @@ Background:      Transparent (UI provides #FDF8F3)
 ### Base Prompt (prepend to all Capy poses)
 
 ```
-A friendly capybara character in classic storybook watercolor illustration style.
-Soft hand-painted brushstrokes with visible paper texture. Warm golden-hour lighting.
+Children's storybook watercolor illustration of a friendly capybara character.
 
-The capybara has warm brown fur (#A67C52 tone), a rounded chunky body, and a soft
-friendly face with slightly sleepy, content eyes and a gentle closed-mouth smile.
+THE CAPYBARA:
+- Warm brown fur (#A67C52) covering entire body
+- Rounded, chunky, friendly body shape
+- Natural brown furry paws
+- Soft friendly face with slightly sleepy, content eyes
 
-IMPORTANT ACCESSORIES (must appear in every image):
-- A classic yellow rubber duck sitting centered on the capybara's head, tilted
-  slightly to the left. The duck has a bright yellow body, orange beak, and small
-  black dot eye.
-- A colorful horizontally-striped sock covering the tip of the capybara's tail
-  (about 30% of the tail). The sock has red, yellow, teal, and purple stripes
-  repeating, and is slightly bunched.
+ACCESSORY: A bright yellow rubber duck toy sitting on top of the capybara's head,
+like a tiny hat. The duck has a yellow body, orange beak, and small black dot eye.
 
-Style: Children's book illustration, Caldecott medal aesthetic, soft edges,
-gentle shadows, no harsh lines, warm and cozy atmosphere, suitable for ages 3-5.
-Square format with character centered and breathing room around edges.
-Cream/warm white background (#FDF8F3).
+STYLE: Caldecott medal quality, soft watercolor brushstrokes, visible paper texture,
+warm golden-hour lighting, cream background (#FDF8F3), suitable for ages 3-5.
+Square format, character centered with breathing room.
 ```
 
 ### Pose: Welcome
 
 ```
-POSE: The capybara is sitting upright facing the viewer, with one front paw
-raised in a friendly small wave. Expression is warm and inviting, eyes open
-and friendly, as if greeting a child for the first time. The rubber duck
+POSE: Sitting upright facing viewer, one front paw raised in a friendly small wave.
+Expression is warm and inviting, eyes open and friendly. The rubber duck on head
 looks forward contentedly. Welcoming, safe feeling.
 ```
 
 ### Pose: Celebrate
 
 ```
-POSE: The capybara is standing on hind legs with both front paws raised up
-in celebration. Expression is joyful and excited - bigger smile, eyes squeezed
-in happiness. The rubber duck is tilted back slightly as if caught in the
-excitement. The sock appears bouncy/dynamic. Triumphant, party feeling.
+POSE: Standing on hind legs with both front paws raised high in celebration.
+Expression is joyful - big smile, eyes squeezed happy. The rubber duck on head
+tilts back excitedly. Triumphant, party feeling.
 ```
 
 ### Pose: Wave
 
 ```
-POSE: The capybara is sitting calmly, with one paw extended in a gentle
-reassuring wave. Expression is calm and understanding, a soft supportive smile,
-eyes conveying "it's okay" energy. The rubber duck tilts slightly toward the
-viewer. Comforting, reassuring feeling.
+POSE: Sitting calmly, one paw extended in gentle reassuring wave.
+Expression is calm and understanding, soft supportive smile. The rubber duck
+on head tilts slightly toward viewer. Comforting, reassuring feeling.
 ```
 
 ### Pose: Sleep
 
 ```
-POSE: The capybara is curled up in a cozy sleeping position, paws tucked in,
-tail curled around body. Eyes are peacefully closed with a serene gentle smile.
-The rubber duck has nestled down with the capybara, also appearing sleepy.
-The sock is curled naturally with the tail. Peaceful, bedtime feeling.
+POSE: Curled up in cozy sleeping position, paws tucked in.
+Eyes peacefully closed with serene smile. The rubber duck has nestled down
+on head, also appearing sleepy. Peaceful, bedtime feeling.
 ```
 
 ### Prompt: Placeholder Image
@@ -327,12 +319,12 @@ For each image asset:
 
 ## Accessibility Checklist
 
-- [ ] Capy silhouette readable at 48x48px (thumbnail)
-- [ ] Fur contrast ratio >=3:1 against #FDF8F3 background
-- [ ] Duck and sock distinguishable for colorblind users
-- [ ] No fine details lost at 1x resolution
-- [ ] `celebration_stars.png` works as reduced-motion alternative
-- [ ] Audio not required for core functionality
+- [x] Capy silhouette readable at 48x48px (thumbnail)
+- [x] Fur contrast ratio >=3:1 against #FDF8F3 background
+- [x] Duck distinguishable (yellow on brown = good contrast)
+- [x] No fine details lost at 1x resolution
+- [x] `celebration_stars.png` works as reduced-motion alternative
+- [x] Audio not required for core functionality
 
 ## Design System Alignment
 
@@ -361,12 +353,74 @@ For each image asset:
 
 ## File Size Budget
 
-| Asset Type | Count | Est. Size Each | Total |
-|------------|-------|----------------|-------|
-| Capy PNGs | 4 | ~150KB | ~600KB |
-| Placeholder PNG | 1 | ~200KB | ~200KB |
-| Celebration Stars PNG | 1 | ~150KB | ~150KB |
-| Celebration Jingle | 1 | ~50KB | ~50KB |
-| **Total** | **7** | - | **~1MB** |
+### Estimated vs Actual
 
-Target: Under 2MB total asset bundle increase.
+| Asset Type | Count | Estimated | Actual |
+|------------|-------|-----------|--------|
+| Capy PNGs (480x480) | 4 | ~600KB | 1.5MB |
+| Placeholder PNG (1024x1024) | 1 | ~200KB | 1.6MB |
+| Celebration Stars PNG (1024x1024) | 1 | ~150KB | 1.6MB |
+| Celebration Jingle (MP3) | 1 | ~50KB | 32KB |
+| **Total** | **7** | **~1MB** | **~5.6MB** |
+
+> **Note:** 1024x1024 images are larger than estimated. Could resize to 512x512 to save ~3MB if needed. Current size acceptable for modern devices.
+
+---
+
+## DALL-E 3 Learnings
+
+### What Worked Well
+
+1. **Watercolor style** - DALL-E 3 excels at children's book illustration styles
+2. **Duck-on-head placement** - Successful with explicit "sitting on top of head like a hat" phrasing
+3. **Consistent character** - Brown capybara with friendly expression reproduced well
+4. **Supporting images** - Placeholder and celebration stars generated perfectly on first try
+
+### What Didn't Work
+
+1. **Tail accessories** - DALL-E 3 consistently fails to place accessories specifically on tails
+   - Tried: "sock on tail", "tail cozy", "tail warmer", "knitted sleeve on tail"
+   - Result: Always placed on feet, body, or as scarf instead
+
+2. **Negative prompts for body parts** - "No socks on feet" often backfires
+   - DALL-E interprets "sock" and puts socks on feet anyway
+   - Better to describe what IS there ("natural brown furry paws")
+
+### Best Practices Discovered
+
+| Technique | Effectiveness |
+|-----------|---------------|
+| Describe what IS there, not what ISN'T | ✅ High |
+| Use "like a hat" for head accessories | ✅ High |
+| Spatial anchoring ("centered on top of skull") | ✅ High |
+| Mentioning specific hex colors | ⚠️ Medium (influences tone but not exact) |
+| Regional exclusions ("no X on Y") | ❌ Low (often ignored) |
+| Synonym substitution for stubborn concepts | ❌ Low (tail remained problematic) |
+
+### Prompt Engineering Tips
+
+1. **For reliable head placement:**
+   ```
+   A [accessory] sitting on top of the [character]'s head, like a tiny hat.
+   The [accessory] is centered on the very top of the head.
+   ```
+
+2. **For bare body parts:**
+   ```
+   Natural brown furry paws (not "no socks on feet")
+   Four brown paws matching body fur color
+   ```
+
+3. **For watercolor children's style:**
+   ```
+   Caldecott medal quality, soft watercolor brushstrokes,
+   visible paper texture, warm golden-hour lighting
+   ```
+
+### Recommendation
+
+For character designs requiring specific accessory placements on non-standard body parts (tails, ears, etc.), consider:
+1. Simplify the design to achievable placements (head, body, hands)
+2. Use Midjourney with `--cref` for better character consistency
+3. Commission an illustrator for complex requirements
+4. Use AI generation as base, then manual editing in image editor
