@@ -1,8 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:elevenlabs_agents/elevenlabs_agents.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 
+import '../config/elevenlabs_config.dart';
 import '../models/agent_event.dart';
 import 'elevenlabs_tools.dart';
 import 'token_provider.dart';
@@ -214,6 +219,40 @@ class ElevenLabsService extends ChangeNotifier {
         ElevenLabsConnectionStatus.disconnecting,
       _ => ElevenLabsConnectionStatus.disconnected,
     };
+  }
+
+  /// Generate speech from text using ElevenLabs TTS API.
+  ///
+  /// Returns audio bytes (MP3 format) or throws on failure.
+  Future<Uint8List> textToSpeech(String text) async {
+    final apiKey = dotenv.env['ELEVENLABS_API_KEY'] ?? '';
+    if (apiKey.isEmpty) {
+      throw Exception('ELEVENLABS_API_KEY not configured');
+    }
+
+    final url = Uri.parse(
+      'https://api.elevenlabs.io/v1/text-to-speech/${ElevenLabsConfig.capyVoiceId}',
+    );
+
+    final response = await http.post(
+      url,
+      headers: {
+        'xi-api-key': apiKey,
+        'Content-Type': 'application/json',
+        'Accept': 'audio/mpeg',
+      },
+      body: jsonEncode({
+        'text': text,
+        'model_id': ElevenLabsConfig.ttsModel,
+        'voice_settings': ElevenLabsConfig.capyVoiceSettings,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('TTS failed: ${response.statusCode} ${response.body}');
+    }
+
+    return response.bodyBytes;
   }
 
   @override

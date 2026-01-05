@@ -116,6 +116,10 @@ class _MockElevenLabsService extends ChangeNotifier implements ElevenLabsService
   @override
   Future<void> setMuted(bool muted) async {}
 
+  @override
+  Future<Uint8List> textToSpeech(String text) async {
+    return Uint8List.fromList([]);
+  }
 }
 
 class _MockImageService implements ImageService {
