@@ -320,12 +320,16 @@ lib/
 ├── app/
 │   ├── app.dart              # MaterialApp, theme, providers
 │   ├── router.dart           # go_router configuration
-│   └── theme.dart            # Visual theme
+│   └── theme.dart            # Visual theme (Claymorphism)
+│
+├── config/
+│   └── elevenlabs_config.dart # TTS voice ID, model, timeout
 │
 ├── services/
 │   ├── audio_service.dart    # Playback + recording facade
-│   ├── elevenlabs_service.dart
-│   ├── image_service.dart
+│   ├── elevenlabs_service.dart # Agent + TTS API
+│   ├── image_service.dart    # DALL-E 3 generation
+│   ├── image_cache.dart      # In-memory image storage
 │   └── storage_service.dart
 │
 ├── models/
@@ -336,22 +340,29 @@ lib/
 ├── providers/
 │   ├── services.dart         # Service providers
 │   ├── story_provider.dart   # Story session state
+│   ├── celebration_provider.dart # TTS audio provider
 │   └── home_provider.dart    # Story list state
 │
 ├── screens/
 │   ├── home_screen.dart
 │   ├── story_screen.dart
-│   ├── celebration_screen.dart
+│   ├── celebration_screen.dart # 3-phase reveal
 │   └── settings_screen.dart
 │
 ├── widgets/
 │   ├── story_card.dart
 │   ├── scene_image.dart
 │   ├── action_cards.dart
-│   └── audio_indicator.dart
+│   ├── audio_indicator.dart
+│   └── full_screen_image_viewer.dart
+│
+├── utils/
+│   └── bytes_audio_source.dart # In-memory audio playback
 │
 └── assets/
-    └── stories/
+    ├── stories/
+    ├── audio/                # Placeholder for jingle
+    └── images/               # Placeholder for Capy art
 ```
 
 ### Data Flow
@@ -408,7 +419,7 @@ class SessionEnded extends AgentEvent {
 }
 ```
 
-### Packages (9 total)
+### Packages (12 total)
 
 | Need | Package |
 |------|---------|
@@ -421,6 +432,9 @@ class SessionEnded extends AgentEvent {
 | Storage | `shared_preferences` |
 | Images | `cached_network_image` |
 | Crash reporting | `firebase_crashlytics` |
+| Confetti | `confetti` |
+| Env Config | `flutter_dotenv` |
+| ElevenLabs Agent | `elevenlabs_agents` |
 
 ### Configuration
 
@@ -502,38 +516,55 @@ class SessionEnded extends AgentEvent {
 
 ### Celebration Screen
 
-Shown on story completion. Reveal sequence:
+Shown on story completion. Three-phase reveal sequence:
 
-1. **Confetti animation** (immediate)
-2. **Capy's personalized recap** (voice, no text): "You were so brave when..."
-3. **Image gallery** (all generated images from playthrough)
-4. **Replay option**: "Play again?" button
+**Phase 1: Jingle (0-2s)**
+- Confetti explosion (confetti package)
+- "You did it!" claymorphism card
+- Short celebratory jingle audio
+- TTS generation starts in background
+
+**Phase 2: Slideshow (variable)**
+- Images auto-play with Ken Burns effect (subtle 5% zoom)
+- Capy's personalized voice recap plays (ElevenLabs TTS)
+- Slide timing synced to audio duration
+- Progress dots show current image
+- Tap anywhere to skip to gallery
+
+**Phase 3: Gallery (final)**
+- Capy celebration header
+- Horizontal thumbnail strip (100x100px, 16px gaps)
+- Tap thumbnail → full-screen viewer
+- Home button (primary, 56px)
+- Play Again button (secondary, 56px)
 
 ```
-┌─────────────────────────────────────────┐
-│          🎉 Confetti 🎉                 │
-│                                         │
-│     ┌─────────────────────────────┐     │
-│     │     Capy celebrating        │     │
-│     │    (speaking recap)         │     │
-│     └─────────────────────────────┘     │
-│                                         │
-│  ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐       │
-│  │ 📷  │ │ 📷  │ │ 📷  │ │ 📷  │       │
-│  └─────┘ └─────┘ └─────┘ └─────┘       │
-│  (scrollable image gallery)             │
-│                                         │
-│        ┌──────────────────┐             │
-│        │   🔄 Play again   │             │
-│        └──────────────────┘             │
-│                                         │
-│        ┌──────────────────┐             │
-│        │   🏠 Home         │             │
-│        └──────────────────┘             │
-└─────────────────────────────────────────┘
+Phase 1: Jingle          Phase 2: Slideshow       Phase 3: Gallery
+┌─────────────────┐      ┌─────────────────┐      ┌─────────────────┐
+│  🎉 Confetti 🎉 │      │  🎉 Confetti 🎉 │      │ [Capy] What a   │
+│                 │      │                 │      │        story!   │
+│  ┌───────────┐  │      │  ┌───────────┐  │      │                 │
+│  │ You did   │  │      │  │  Image    │  │      │ [📷][📷][📷]   │
+│  │  it!      │  │      │  │(Ken Burns)│  │      │ (tap for full)  │
+│  └───────────┘  │      │  └───────────┘  │      │                 │
+│                 │      │    ● ○ ○ ○      │      │ [🏠 Home      ] │
+│   ⏳ Loading... │      │   (dots)        │      │ [🔄 Play Again] │
+└─────────────────┘      └─────────────────┘      └─────────────────┘
 ```
 
-**Image storage**: Keep in memory for celebration, discard after leaving screen.
+**Full-Screen Viewer**:
+- PageView with swipe navigation
+- Close button (top-left, always visible, 56px)
+- Swipe down to dismiss
+- Thumbnail strip at bottom
+
+**TTS Integration**:
+- Uses ElevenLabs TTS API (not conversational agent)
+- Lily voice (warm, friendly) via ElevenLabsConfig
+- 8-second timeout, silent fallback on failure
+- BytesAudioSource plays audio from memory (no temp files)
+
+**Image storage**: Keep in memory via ImageCache, discard after leaving screen.
 
 ### Settings Screen
 
@@ -657,12 +688,23 @@ PHASE 6: Persistence
 ├── 30-minute cap with gentle Capy goodbye
 └── Personal welcome back
 
-PHASE 7: Celebration
-├── CelebrationScreen
-├── Reveal sequence animation
-├── Capy voice recap
-├── Image gallery (in-memory)
-└── Replay option
+PHASE 7: Celebration ✅ COMPLETE
+├── CelebrationScreen with 3-phase reveal
+├── Confetti animation (confetti package)
+├── Capy voice recap (ElevenLabs TTS API)
+├── Ken Burns effect on slideshow images
+├── Image gallery with full-screen viewer
+├── Swipe navigation + swipe-down dismiss
+└── Replay option + Home navigation
+
+    Implementation Notes:
+    - 3-phase reveal: jingle (2s) → slideshow+voice → gallery
+    - BytesAudioSource: Custom StreamAudioSource for in-memory audio
+    - ElevenLabsConfig: Centralized TTS settings (voice ID, model, timeout)
+    - celebrationTtsProvider: Riverpod provider with silent fallback
+    - FullScreenImageViewer: PageView with swipe gestures
+    - 56px touch targets, 16px gaps (child-friendly)
+    - Reduced motion support via MediaQuery.disableAnimations
 
 PHASE 8: Polish & Ship
 ├── Error states
