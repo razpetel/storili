@@ -58,9 +58,18 @@ void main() {
 
     testWidgets('CelebrationScreen renders with storyId', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(home: CelebrationScreen(storyId: 'test-story', summary: 'A great adventure')),
+        ProviderScope(
+          overrides: [
+            imageCacheProvider.overrideWithValue(image_cache.ImageCache()),
+          ],
+          child: const MaterialApp(home: CelebrationScreen(storyId: 'test-story', summary: 'A great adventure')),
+        ),
       );
-      expect(find.text('Congratulations'), findsOneWidget);
+      await tester.pump();
+      expect(find.text('You did it!'), findsOneWidget);
+
+      // Complete the jingle timer (2 seconds) before disposing
+      await tester.pump(const Duration(seconds: 3));
     });
   });
 }

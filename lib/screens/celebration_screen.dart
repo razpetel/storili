@@ -51,6 +51,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
   late AnimationController _kenBurnsController;
   AudioPlayer? _jinglePlayer;
   AudioPlayer? _voicePlayer;
+  StreamSubscription<PlayerState>? _voicePlayerSubscription;
 
   // Images from cache
   List<Uint8List> _images = [];
@@ -150,7 +151,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
       _voicePlayer!.play();
 
       // Listen for voice completion
-      _voicePlayer!.playerStateStream.listen((state) {
+      _voicePlayerSubscription = _voicePlayer!.playerStateStream.listen((state) {
         if (state.processingState == ProcessingState.completed) {
           if (_currentSlide >= _images.length - 1) {
             _transitionToGallery();
@@ -218,6 +219,7 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
     _confettiController.dispose();
     _kenBurnsController.dispose();
     _slideTimer?.cancel();
+    _voicePlayerSubscription?.cancel();
     _jinglePlayer?.dispose();
     _voicePlayer?.dispose();
     super.dispose();
