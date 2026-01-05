@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:elevenlabs_agents/elevenlabs_agents.dart';
 import 'package:flutter/foundation.dart';
@@ -67,7 +66,7 @@ class ElevenLabsService extends ChangeNotifier {
         }
       },
       onDisconnect: (details) {
-        debugPrint('ElevenLabs disconnected: ${details?.reason}');
+        debugPrint('ElevenLabs disconnected: ${details.reason}');
         if (!_eventController.isClosed) {
           _eventController.add(
             const ConnectionStatusChanged(
@@ -83,10 +82,9 @@ class ElevenLabsService extends ChangeNotifier {
       onError: (message, [context]) {
         debugPrint('ElevenLabs error: $message ($context)');
         if (!_eventController.isClosed) {
-          // Ensure message and context are strings (SDK may pass exceptions)
-          final msgStr = message is String ? message : message.toString();
-          final ctxStr = context is String ? context : context?.toString();
-          _eventController.add(AgentError(msgStr, ctxStr));
+          // Convert context to string if provided
+          final ctxStr = context?.toString();
+          _eventController.add(AgentError(message, ctxStr));
         }
       },
       onMessage: ({required message, required source}) {

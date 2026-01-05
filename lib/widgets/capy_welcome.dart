@@ -12,10 +12,10 @@ class CapyWelcome extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.5),
+        color: AppColors.primary.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: AppColors.secondary.withOpacity(0.2),
+          color: AppColors.secondary.withValues(alpha: 0.2),
           width: 2,
         ),
       ),

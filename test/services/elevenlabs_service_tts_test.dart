@@ -1,9 +1,6 @@
 // test/services/elevenlabs_service_tts_test.dart
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
 import 'dart:convert';
-import 'dart:typed_data';
 
 // Note: This test requires refactoring ElevenLabsService to accept http.Client
 // For now, we test the TTS endpoint logic separately

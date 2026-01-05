@@ -23,26 +23,26 @@ class StoryCard extends StatelessWidget {
           gradient: LinearGradient(
             colors: [
               story.primaryColor,
-              story.secondaryColor.withOpacity(0.3),
+              story.secondaryColor.withValues(alpha: 0.3),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: story.secondaryColor.withOpacity(0.3),
+            color: story.secondaryColor.withValues(alpha: 0.3),
             width: 3,
           ),
           boxShadow: [
             // Outer shadow (claymorphism)
             BoxShadow(
-              color: AppColors.shadowOuter.withOpacity(0.5),
+              color: AppColors.shadowOuter.withValues(alpha: 0.5),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
             // Secondary shadow for depth
             BoxShadow(
-              color: AppColors.shadowInner.withOpacity(0.3),
+              color: AppColors.shadowInner.withValues(alpha: 0.3),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
