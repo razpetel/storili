@@ -58,7 +58,7 @@ void main() {
 
     testWidgets('CelebrationScreen renders with storyId', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(home: CelebrationScreen(storyId: 'test-story')),
+        const MaterialApp(home: CelebrationScreen(storyId: 'test-story', summary: 'A great adventure')),
       );
       expect(find.text('Congratulations'), findsOneWidget);
     });

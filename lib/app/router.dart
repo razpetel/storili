@@ -33,7 +33,8 @@ class AppRouter {
         name: 'celebration',
         builder: (context, state) {
           final storyId = state.pathParameters['storyId']!;
-          return CelebrationScreen(storyId: storyId);
+          final summary = state.extra as String? ?? '';
+          return CelebrationScreen(storyId: storyId, summary: summary);
         },
       ),
     ],
