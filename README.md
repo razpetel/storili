@@ -60,8 +60,29 @@ lib/
 
 ### Running Tests
 ```bash
-flutter test
+flutter test                    # Unit + widget tests (177 tests)
+flutter test integration_test/  # Integration tests
 ```
+
+### Debug Features (debug builds only)
+
+Access via **Settings > Debug**:
+
+| Feature | Description |
+|---------|-------------|
+| Test Celebration | 5 test images + real TTS |
+| Test Celebration (Mock) | 5 test images + silent fallback |
+
+Routes with query params:
+```
+/debug/celebration              # Default: 5 images, real TTS
+/debug/celebration?mock=true    # Silent fallback (no API)
+/debug/celebration?images=3     # Custom image count
+```
+
+### Test Image Generator
+
+`TestImageGenerator` creates colored PNG images at runtime using `dart:ui` Canvas - no external asset files needed for testing.
 
 ### Worktree Development
 Feature branches use git worktrees for isolation:

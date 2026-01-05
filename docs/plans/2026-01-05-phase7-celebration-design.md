@@ -426,6 +426,134 @@ Future<Uint8List> textToSpeech(String text) async {
 
 ---
 
+## Debug & Testing Infrastructure
+
+### Test Image Generator
+
+Utility for generating colored PNG images programmatically without external assets:
+
+```dart
+class TestImageGenerator {
+  static const List<Color> sceneColors = [
+    Color(0xFFE57373), // Red - "The cottage"
+    Color(0xFFFFB74D), // Orange - "The forest path"
+    Color(0xFF81C784), // Green - "The meadow"
+    Color(0xFF64B5F6), // Blue - "The river"
+    Color(0xFFBA68C8), // Purple - "The castle"
+  ];
+
+  static Future<List<int>> generateColoredImage(
+    Color color, {int size = 512}
+  ) async {
+    // Uses dart:ui Canvas to draw solid color + gradient overlay
+    // Returns PNG bytes via picture.toImage() + toByteData()
+  }
+}
+```
+
+**Key insight:** Using `dart:ui` Canvas avoids need for asset files during testing. Images are generated at runtime with visual interest (radial gradient overlay, corner indicator circle).
+
+### Debug Test Flow
+
+Access via Settings screen (debug builds only):
+
+| Route | Configuration |
+|-------|---------------|
+| `/debug/celebration` | 5 images, real TTS |
+| `/debug/celebration?mock=true` | 5 images, silent fallback |
+| `/debug/celebration?images=3` | 3 images, real TTS |
+
+**CelebrationDebugLauncher** workflow:
+1. Clears ImageCache
+2. Generates N colored test images (parallel progress indicator)
+3. Populates ImageCache with indices
+4. Navigates to `/celebration/test-story` with predetermined summary
+
+```dart
+// Predetermined test data
+class CelebrationTestData {
+  static const String storyId = 'three-little-pigs-test';
+  static const String summary = '''
+What an amazing adventure! You helped the three little pigs build their houses.
+You were so brave when you told the big bad wolf to go away!
+The wolf huffed and puffed, but together we outsmarted him.
+Great job, little storyteller!''';
+  static const String shortSummary = 'Great job finishing the story!';
+}
+```
+
+### Integration Tests
+
+Location: `integration_test/celebration_flow_test.dart`
+
+| Test | Purpose |
+|------|---------|
+| Debug launcher navigation | Verifies setup and route transition |
+| Confetti animation display | Ensures celebration UI renders |
+| Image gallery after slideshow | Phase transition timing |
+| Replay button functionality | Restart behavior |
+
+**Key insight:** Integration tests use `UncontrolledProviderScope` with pre-populated `ImageCache` to bypass actual image generation. Tests exercise the full UI flow with mock data.
+
+---
+
+## Implementation Learnings
+
+### Memory Leak Prevention
+
+Stream subscriptions must be stored and cancelled:
+
+```dart
+// BAD - memory leak
+_voicePlayer.playerStateStream.listen((state) { ... });
+
+// GOOD - tracked and cancelled
+StreamSubscription<PlayerState>? _voicePlayerSubscription;
+
+_voicePlayerSubscription = _voicePlayer.playerStateStream.listen((state) { ... });
+
+@override
+void dispose() {
+  _voicePlayerSubscription?.cancel();
+  super.dispose();
+}
+```
+
+### Deprecation Migration
+
+Flutter 3.7+ deprecates `Color.withOpacity()`:
+
+```dart
+// Deprecated - precision loss warning
+color.withOpacity(0.9)
+
+// Preferred - explicit alpha
+color.withValues(alpha: 0.9)
+```
+
+### Provider Family Pattern
+
+`FutureProvider.autoDispose.family` enables dynamic parameter passing with cleanup:
+
+```dart
+final celebrationTtsProvider = FutureProvider.autoDispose.family<Uint8List?, String>(
+  (ref, summary) async {
+    // Each unique summary gets its own provider instance
+    // autoDispose cleans up when no longer used
+  },
+);
+
+// Usage
+ref.listen(
+  celebrationTtsProvider(summary),
+  (previous, next) {
+    next.whenData((audioBytes) => ...);
+  },
+);
+```
+
+---
+
 ## Deferred to Post-MVP
 
 - Pinch-to-zoom in image viewer (gesture complexity)

@@ -357,12 +357,19 @@ lib/
 │   └── full_screen_image_viewer.dart
 │
 ├── utils/
-│   └── bytes_audio_source.dart # In-memory audio playback
+│   ├── bytes_audio_source.dart  # In-memory audio playback
+│   └── test_image_generator.dart # Programmatic test images
+│
+├── screens/debug/
+│   └── celebration_debug_launcher.dart # Debug test flow
 │
 └── assets/
     ├── stories/
     ├── audio/                # Placeholder for jingle
     └── images/               # Placeholder for Capy art
+
+integration_test/
+└── celebration_flow_test.dart # Celebration UI integration tests
 ```
 
 ### Data Flow
@@ -719,9 +726,29 @@ PHASE 8: Polish & Ship
 
 ### Automated
 
-- Unit tests: Services (ElevenLabs event parsing, storage, image service)
-- Widget tests: Action cards, scene image, audio indicator
-- Integration tests: Full story flow with mocked services
+- **Unit tests** (177 tests): Services (ElevenLabs, storage, image), providers, models
+- **Widget tests**: Action cards, scene image, audio indicator, celebration screen
+- **Integration tests**: Celebration flow with programmatic test images
+
+### Debug Test Flow
+
+In debug builds, Settings screen provides celebration testing without completing a story:
+
+```
+Settings > Debug > Test Celebration
+```
+
+**Routes:**
+- `/debug/celebration` - 5 colored images, real TTS
+- `/debug/celebration?mock=true` - Silent fallback (no API calls)
+- `/debug/celebration?images=N` - Custom image count
+
+**TestImageGenerator** creates colored PNGs at runtime using `dart:ui` Canvas:
+- 5 scene colors (red, orange, green, blue, purple)
+- Radial gradient overlay for visual interest
+- No external asset files required
+
+**CelebrationTestData** provides predetermined summaries for TTS testing.
 
 ### Manual (with children)
 
