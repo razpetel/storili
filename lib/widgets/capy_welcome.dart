@@ -22,11 +22,12 @@ class CapyWelcome extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Capy placeholder - will be replaced with illustration
-          Icon(
-            Icons.pets,
-            size: 64,
-            color: AppColors.secondary,
+          // Capy welcome illustration
+          Image.asset(
+            'assets/images/capy_welcome.png',
+            width: 120,
+            height: 120,
+            semanticLabel: 'Capy the capybara waving hello',
           ),
           const SizedBox(height: 16),
           Text(

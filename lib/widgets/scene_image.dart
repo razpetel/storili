@@ -113,25 +113,13 @@ class _SceneImageState extends State<SceneImage>
     }
 
     if (widget.imageBytes == null) {
-      return Container(
+      return Image.asset(
+        'assets/images/placeholder.png',
         key: const ValueKey('placeholder'),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.brown.shade100,
-              Colors.brown.shade200,
-            ],
-          ),
-        ),
-        child: const Center(
-          child: Icon(
-            Icons.auto_stories,
-            size: 64,
-            color: Colors.brown,
-          ),
-        ),
+        fit: BoxFit.cover,
+        width: double.infinity,
+        height: double.infinity,
+        semanticLabel: 'Story image loading',
       );
     }
 

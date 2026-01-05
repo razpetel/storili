@@ -57,7 +57,13 @@ flutter:
 
   assets:
     - .env
+    - assets/audio/
+    - assets/images/
     - assets/stories/
+    - assets/stories/_shared/
+    - assets/stories/three-little-pigs/
+    - assets/stories/three-little-pigs/characters/
+    - assets/stories/three-little-pigs/scenes/
 
   # To add assets to your application, add an assets section, like this:
   # assets:
