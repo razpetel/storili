@@ -11,6 +11,7 @@ import 'package:just_audio/just_audio.dart';
 
 import '../app/theme.dart';
 import '../providers/celebration_provider.dart';
+import '../widgets/full_screen_image_viewer.dart';
 import '../providers/services.dart';
 import '../utils/bytes_audio_source.dart';
 
@@ -520,7 +521,14 @@ class _CelebrationScreenState extends ConsumerState<CelebrationScreen>
   }
 
   void _openFullScreenViewer(int index) {
-    // TODO: Implement full-screen viewer in Task 9
     HapticFeedback.selectionClick();
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => FullScreenImageViewer(
+          images: _images,
+          initialIndex: index,
+        ),
+      ),
+    );
   }
 }
